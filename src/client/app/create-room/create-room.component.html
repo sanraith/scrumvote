@@ -1,0 +1,4 @@
+<h2>Create room</h2>
+
+<input type="text" [(ngModel)]="roomName" />
+<button (click)="submit()" [disabled]="isBusy || (!roomName || roomName.length === 0)">OK</button>

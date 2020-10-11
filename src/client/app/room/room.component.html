@@ -1,0 +1,7 @@
+<h2>Vote room: {{roomName || roomId}}</h2>
+<p>
+    Room URL:
+    <input type="text" value="{{roomAddress}}" readonly #roomAddressInput style="width: 50%;">
+    <button #copyRoomAddressButton class="bigButton"
+        (click)="copyRoomAddressToClipboard(roomAddressInput, copyRoomAddressButton)">Copy</button>
+</p>

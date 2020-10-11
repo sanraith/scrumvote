@@ -6,11 +6,15 @@ import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
 import { UsernameComponent } from './username/username.component';
 import { FormsModule } from '@angular/forms';
+import { CreateRoomComponent } from './create-room/create-room.component';
+import { RoomComponent } from './room/room.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        UsernameComponent
+        UsernameComponent,
+        CreateRoomComponent,
+        RoomComponent
     ],
     imports: [
         BrowserModule,

@@ -2,7 +2,7 @@ import Debug from 'debug';
 import express from 'express';
 import * as http from 'http';
 import logger from 'morgan';
-import randomRouter from './routes/randomRouter';
+import roomRouter from './routes/roomRouter';
 
 const debug = Debug('fullstack-angular-app:server');
 const _app_client_folder = 'dist/client';
@@ -13,10 +13,10 @@ if (process.env.NODE_ENV === 'development') {
     server.use(logger('dev'));
 }
 server.use(express.json());
-server.use(express.urlencoded({extended: false}));
+server.use(express.urlencoded({ extended: false }));
 
 // Routers setup
-server.use('/api/random', randomRouter);
+server.use('/api/room', roomRouter);
 server.use(express["static"](_app_client_folder));
 
 // Serve application paths

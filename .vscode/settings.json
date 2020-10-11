@@ -31,6 +31,9 @@
         "browserslist": true, // target browser selection
         "karma.conf.js": true, // test runner config
         "tsconfig.spec.json": true, // test compiler config
+        "src/client/environments": true,
+        "src/client/polyfills.ts": true,
+        "src/client/test.ts": true,
     },
     "browser-preview.startUrl": "localhost:3000",
     "browser-preview.verbose": false,

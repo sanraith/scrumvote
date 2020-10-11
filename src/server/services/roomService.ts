@@ -1,9 +1,7 @@
 import Debug from 'debug';
-import { generate as shortid } from 'shortid';
+import shortid from 'shortid';
 import Room from '../models/room';
 import UserInfo from '../models/userInfo';
-import routerErrorHandler from '../routes/routerErrorHandler';
-
 const debug = Debug("vote-scrum:services:roomManager");
 
 class RoomService {
@@ -20,7 +18,7 @@ class RoomService {
         return newRoom;
     }
 
-    _roomIdGenerator: { generate(): string } = { generate() { return shortid(); } };
+    _roomIdGenerator: { generate(): string } = shortid;
     private _rooms: { [id: string]: Room } = {};
 }
 

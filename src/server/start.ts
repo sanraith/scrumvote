@@ -4,6 +4,7 @@ import express from 'express';
 import * as http from 'http';
 import logger from 'morgan';
 import roomRouter from './routes/roomRouter';
+import socketService from './services/socketService';
 
 const debug = Debug('fullstack-angular-app:server');
 const _app_client_folder = 'dist/client';
@@ -26,9 +27,6 @@ server.get('*', function (req, res) {
     res.status(200).sendFile(`/`, { root: _app_client_folder });
 });
 
-
-
-
 // Get port from environment and store in Express.
 const port = normalizePort(process.env.PORT || '3000');
 server.set('port', port);
@@ -40,6 +38,9 @@ const httpServer = http.createServer(server);
 httpServer.listen(port);
 httpServer.on('error', onError);
 httpServer.on('listening', onListening);
+
+// Start socket service
+socketService.init(httpServer);
 
 /**
  * Normalize a port into a number, string, or false.

@@ -2,11 +2,12 @@
     "name": "vote-scrum",
     "version": "0.0.0",
     "scripts": {
-        "dev": "SET DEBUG=vote-scrum:* && nodemon --config .\\util\\server-nodemon.json",
+        "dev": "SET DEBUG=vote-scrum:* && nodemon --config \"./util/server-nodemon.json\"",
         "dev2": "ng build --watch",
+        "localBuild": "node util/build.js",
+        "start": "node dist/server/start.js",
+        "ngBuild": "ng build --prod",
         "ng": "ng",
-        "start": "ng serve",
-        "build": "ng build",
         "test": "ng test",
         "lint": "tsc --noEmit && eslint . --ext js,ts,json --quiet --fix",
         "e2e": "ng e2e"

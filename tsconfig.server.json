@@ -20,11 +20,10 @@
         "forceConsistentCasingInFileNames": true /* Disallow inconsistently-cased references to the same file. */
     },
     "include": [
-        "src/**/*.ts"
+        "src/server/**/*.ts",
+        "src/shared/**/*.ts",
     ],
-    "exclude": [
-        "src/client/*.*"
-    ],
+    "exclude": [],
     "angularCompilerOptions": {
         "fullTemplateTypeCheck": true,
         "strictInjectionParameters": true

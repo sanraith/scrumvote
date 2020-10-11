@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import RandomNumberResponse from 'src/shared/randomNumberResponse';
-import { RandomNumberService } from './services/random-number.service';
+import { NavigationEnd, Router } from '@angular/router';
+import { UserService } from './services/user.service';
 
 @Component({
     selector: 'app-root',
@@ -8,15 +8,22 @@ import { RandomNumberService } from './services/random-number.service';
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements OnInit {
-    title = 'fullstack-angular-app';
-    number?: number;
+    title = 'vote-scrum';
 
-    constructor(private randomNumberService: RandomNumberService) { }
-
-    ngOnInit(): void {
-        this.number = null;
-        this.randomNumberService.getDiceRoll().subscribe(resp => {
-            this.number = resp.number;
+    constructor(private router: Router, public userService: UserService) {
+        // If the user have not set their username, go there first.
+        router.events.subscribe(evt => {
+            if (evt instanceof NavigationEnd && evt.urlAfterRedirects !== '/user') {
+                this.redirectIfNoUserNameIsSet();
+            }
         });
+    }
+
+    ngOnInit(): void { }
+
+    private redirectIfNoUserNameIsSet(): void {
+        if (!this.userService.userData.isNamePersonalized) {
+            this.router.navigate(['user']);
+        }
     }
 }

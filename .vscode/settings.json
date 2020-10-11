@@ -27,7 +27,7 @@
         // --- Remove some clutter ---
         "node_modules": true,
         "e2e/": true, // e2e tests
-        "src/**/*.spec.ts": false, // unit tests
+        "src/**/*.spec.ts": true, // unit tests
         "src/environments/": true, // build configuration options for target environments
         "browserslist": true, // target browser selection
         "karma.conf.js": true, // test runner config

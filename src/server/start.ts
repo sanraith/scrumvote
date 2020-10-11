@@ -1,4 +1,5 @@
 import Debug from 'debug';
+import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as http from 'http';
 import logger from 'morgan';
@@ -14,6 +15,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
+server.use(cookieParser());
 
 // Routers setup
 server.use('/api/room', roomRouter);

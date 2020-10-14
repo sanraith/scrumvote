@@ -6,7 +6,7 @@ export interface UserCookies {
     "vote-scrum.user.name": string;
 }
 
-class UserService {
+export default class UserService {
     getUserByPrivateId(id: string) {
         return this.users[id];
     }
@@ -42,5 +42,3 @@ class UserService {
 
     private readonly users: { [key: string]: UserInfo } = {};
 }
-
-export default new UserService();

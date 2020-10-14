@@ -2,11 +2,12 @@ import SocketIo, { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import cookie from 'cookie';
 import Debug from 'debug';
-import userManager, { UserCookies } from './userManager';
+import UserService, { UserCookies } from './userService';
 import { EmitResponse } from 'src/shared/socket';
 import UserInfo from '../models/userInfo';
 import shortid from 'shortid';
-import UserSocket from './userSocket';
+import UserSocketService from './userSocketService';
+import { Inject } from 'typescript-ioc';
 
 const debug = Debug('vote-scrum:services:socketManager');
 const errorDebug = Debug('vote-scrum:services:socketManager:ERROR');
@@ -17,7 +18,10 @@ enum SocketEvents {
     disconnect = "disconnect",
 }
 
-class SocketService {
+export default class SocketManagerService {
+    @Inject
+    private userService: UserService;
+
     init(httpServer: HttpServer) {
         const io = SocketIo(httpServer, { perMessageDeflate: false });
         io.on(SocketEvents.connection, (socket) => {
@@ -31,7 +35,7 @@ class SocketService {
             // Save user socket
             if (!this.userSockets[userInfo.id]) { this.userSockets[userInfo.id] = []; }
             const userSockets = this.userSockets[userInfo.id];
-            const userSocket = new UserSocket(userInfo, socket);
+            const userSocket = new UserSocketService(userInfo, socket);
             userSockets.push(userSocket);
             debug(`Client ${userInfo.name} #${userSockets.length - 1} connected: ${socket.client.id}`);
 
@@ -45,7 +49,7 @@ class SocketService {
         this.io = io;
     }
 
-    private handleDisconnect(userInfo: UserInfo, socket: SocketIo.Socket, userSocket: UserSocket) {
+    private handleDisconnect(userInfo: UserInfo, socket: SocketIo.Socket, userSocket: UserSocketService) {
         if (!this.userSockets[userInfo.id]) {
             debug(`Disconnecting ${socket.id}, but cannot find any saved sockets for user ${userInfo.name}!`);
         }
@@ -59,14 +63,13 @@ class SocketService {
         userSocket.socket.removeAllListeners();
         userSockets.splice(index, 1);
         if (userSockets.length === 0) {
-            // TODO userSocket.markUserAsDisconnected();
-            // TODO userSocket.leaveRoom();
+            userSocket.leaveCurrentRoom();
             delete this.userSockets[userInfo.id];
         }
         debug(`Disconnecting user ${userInfo.name} socket ${socket.client.id}. ${userSockets.length} connections remain.`);
     }
 
-    private handleUserSocketError(userSocket: UserSocket, action: () => void) {
+    private handleUserSocketError(userSocket: UserSocketService, action: () => void) {
         try {
             action();
         } catch (error) {
@@ -91,9 +94,9 @@ class SocketService {
     private getUserFromSocketCookies(cookies: any): UserInfo | undefined {
         if (!cookies) { return undefined; }
         const userCookies = <{ [P in keyof UserCookies]: UserCookies[P] }>cookie.parse(cookies);
-        if (!userManager.isCookiesContainUserInfo(userCookies)) { return undefined; }
+        if (!this.userService.isCookiesContainUserInfo(userCookies)) { return undefined; }
 
-        return userManager.getUserFromCookies(userCookies);
+        return this.userService.getUserFromCookies(userCookies);
     }
 
     private callbackMaybe(value: EmitResponse, callback: ((resp: EmitResponse) => void) | undefined) {
@@ -103,7 +106,5 @@ class SocketService {
     }
 
     private io!: Server;
-    private userSockets: Record<string, UserSocket[]> = {};
+    private userSockets: Record<string, UserSocketService[]> = {};
 }
-
-export default new SocketService();

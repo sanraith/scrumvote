@@ -3,8 +3,9 @@ import cookieParser from 'cookie-parser';
 import express from 'express';
 import * as http from 'http';
 import logger from 'morgan';
-import roomRouter from './routes/roomRouter';
-import socketService from './services/socketService';
+import RoomRouter from './routes/roomRouter';
+import { Container } from 'typescript-ioc';
+import SocketManagerService from './services/socketManagerService';
 
 const debug = Debug('fullstack-angular-app:server');
 const _app_client_folder = 'dist/client';
@@ -19,7 +20,8 @@ server.use(express.urlencoded({ extended: false }));
 server.use(cookieParser());
 
 // Routers setup
-server.use('/api/room', roomRouter);
+const roomRouter = Container.get(RoomRouter);
+server.use('/api/room', roomRouter.router);
 server.use(express["static"](_app_client_folder));
 
 // Serve application paths
@@ -40,6 +42,7 @@ httpServer.on('error', onError);
 httpServer.on('listening', onListening);
 
 // Start socket service
+const socketService = Container.get(SocketManagerService);
 socketService.init(httpServer);
 
 /**

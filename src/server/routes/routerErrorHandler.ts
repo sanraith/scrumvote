@@ -2,6 +2,8 @@ import { Response } from 'express';
 import Debug from 'debug';
 import shortid from 'shortid';
 
+export type ErrorHandler = (res: Response<any>, action: () => void) => void;
+
 export default (errorDebug: Debug.Debugger) => (res: Response<any>, action: () => void) => {
     try {
         action();

@@ -1,3 +1,4 @@
+import { Singleton } from 'typescript-ioc';
 import UserInfo from '../models/userInfo';
 
 export interface UserCookies {
@@ -6,6 +7,7 @@ export interface UserCookies {
     "vote-scrum.user.name": string;
 }
 
+@Singleton
 export default class UserService {
     getUserByPrivateId(id: string) {
         return this.users[id];

@@ -3,11 +3,11 @@ import { Server as HttpServer } from 'http';
 import cookie from 'cookie';
 import Debug from 'debug';
 import UserService, { UserCookies } from './userService';
-import { EmitResponse } from 'src/shared/socket';
+import { ClientActions, EmitResponse, JoinRoomData } from '../../shared/socket';
 import UserInfo from '../models/userInfo';
 import shortid from 'shortid';
 import UserSocketService from './userSocketService';
-import { Inject } from 'typescript-ioc';
+import { Inject, Singleton } from 'typescript-ioc';
 
 const debug = Debug('vote-scrum:services:socketManager');
 const errorDebug = Debug('vote-scrum:services:socketManager:ERROR');
@@ -18,6 +18,7 @@ enum SocketEvents {
     disconnect = "disconnect",
 }
 
+@Singleton
 export default class SocketManagerService {
     @Inject
     private userService: UserService;
@@ -43,6 +44,14 @@ export default class SocketManagerService {
 
             socket.on(SocketEvents.disconnect, () => {
                 errorHandler(() => { this.handleDisconnect(userInfo, socket, userSocket); })
+            });
+
+            socket.on(ClientActions.joinRoom, (data: JoinRoomData, callback?: (resp: EmitResponse) => void) => {
+                errorHandler(() => this.callbackMaybe(userSocket.joinRoom(data), callback));
+            });
+
+            socket.on(ClientActions.leaveRoom, (data: object, callback?: (resp: EmitResponse) => void) => {
+                errorHandler(() => this.callbackMaybe(userSocket.leaveCurrentRoom(), callback));
             });
         });
 

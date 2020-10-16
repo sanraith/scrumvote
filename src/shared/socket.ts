@@ -1,6 +1,6 @@
 export enum ClientActions {
     joinRoom = "join_room",
-    leaveRooms = "leave_rooms",
+    leaveRoom = "leave_rooms",
 }
 
 export enum ClientEvents {
@@ -12,10 +12,6 @@ export enum ClientEvents {
 export interface EmitResponse {
     success: boolean;
     message?: string;
-}
-
-export interface JoinRoomResponse extends EmitResponse {
-    name?: string;
 }
 
 export interface JoinRoomData {

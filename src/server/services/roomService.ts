@@ -1,16 +1,25 @@
 import Debug from 'debug';
 import shortid from 'shortid';
+import { Singleton } from 'typescript-ioc';
+import Poll from '../models/poll';
 import Room from '../models/room';
 import UserInfo from '../models/userInfo';
+import Vote from '../models/vote';
 const debug = Debug("vote-scrum:services:roomManager");
 
+@Singleton
 class RoomService {
+    getRoom(id: string): Room | undefined {
+        return this._rooms[id];
+    }
+
     createRoom(owner: UserInfo, name: string): Room {
         const newRoom: Room = {
             id: this._roomIdGenerator.generate(),
             name: name,
             owner: owner,
-            users: []
+            users: [],
+            polls: new Map()
         };
         this._rooms[newRoom.id] = newRoom;
 
@@ -18,13 +27,22 @@ class RoomService {
         return newRoom;
     }
 
-    leaveRoom(room: Room, player: UserInfo): void {
-        const existingUserIndex = room.users.findIndex(x => player.id == x.id);
+    joinRoom(room: Room, user: UserInfo) {
+        const existingUserIndex = room.users.findIndex(x => user.id == x.id);
+        if (existingUserIndex > -1) { return; }
+
+        room.users.push(user);
+        debug(`User ${user.name} joined room ${room.id}.`);
+        //TODO emit users changed
+    }
+
+    leaveRoom(room: Room, user: UserInfo): void {
+        const existingUserIndex = room.users.findIndex(x => user.id == x.id);
         if (existingUserIndex < 0) { return; }
 
         const leftPlayer = room.users.splice(existingUserIndex, 1)[0];
         if (room.users.length === 0) {
-            // Delete room after some time if no players rejoin
+            // Delete room after some time if no users rejoin
             // TODO refine this to cancel timeout after someone rejoins
             // setTimeout(() => {
             //     if (room.users.length === 0) { this.deleteRoom(room); }
@@ -37,7 +55,34 @@ class RoomService {
         debug(`Client ${leftPlayer.name} left room ${room.id}`);
     }
 
+    createPoll(room: Room, question: string): Poll {
+        const poll: Poll = {
+            id: this._pollIdGenerator.generate(),
+            isActive: true,
+            question: question,
+            votes: []
+        };
+        room.polls.set(poll.id, poll);
 
+        debug(`Created poll ${poll.id} in ${room.id}`);
+
+        // TODO emit polls added
+
+        return poll;
+    }
+
+    votePoll(roomId: string, pollId: string, userInfo: UserInfo, vote: Vote): void {
+
+        // TODO emit poll vote added
+    }
+
+    closePoll(pollId: string) {
+
+        // TODO emit poll state changed
+    }
+
+
+    _pollIdGenerator: { generate(): string } = shortid;
     _roomIdGenerator: { generate(): string } = shortid;
     private _rooms: { [id: string]: Room } = {};
 }

@@ -31,6 +31,7 @@
         "rxjs": "~6.5.4",
         "shortid": "^2.2.15",
         "socket.io": "^2.3.0",
+        "strongly-typed-events": "^1.6.21",
         "tslib": "^1.10.0",
         "typescript-ioc": "^3.2.2",
         "zone.js": "~0.10.2"

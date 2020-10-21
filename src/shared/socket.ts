@@ -1,3 +1,5 @@
+import PublicPollInfo from './model/publicPollInfo';
+
 export enum ClientActions {
     joinRoom = "join_room",
     leaveRoom = "leave_rooms",
@@ -7,6 +9,7 @@ export enum ClientEvents {
     connect = "connect",
     disconnect = "disconnect",
     kickedFromRoom = "kicked_from_room",
+    pollChanged = "pollChanged"
 }
 
 export interface EmitResponse {
@@ -25,4 +28,8 @@ export interface KickUserData {
 export interface KickedFromRoomData {
     roomId: string,
     reason: string
+}
+
+export interface PollsChangedData {
+    polls: PublicPollInfo[]
 }

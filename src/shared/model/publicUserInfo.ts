@@ -1,4 +1,4 @@
-export class PublicUserInfo {
+export default class PublicUserInfo {
     constructor(public name: string, public id: string) {
         this._cannotCastUserInfoIntoPublicUserInfo();
     }

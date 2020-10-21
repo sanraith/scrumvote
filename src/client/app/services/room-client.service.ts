@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import PublicRoomInfo from 'src/shared/model/publicRoomInfo';
-import { CREATE_POLL_API, CREATE_ROOM_API, ROOM_ID_PARAM, ROOM_INFO_API } from 'src/shared/paths';
+import { CREATE_POLL_API, ROOM_ID_PARAM, ROOM_INFO_API } from 'src/shared/paths';
 import { CreatePollRequest, CreatePollResponse } from 'src/shared/roomResponses';
 
 @Injectable({

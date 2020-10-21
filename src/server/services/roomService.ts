@@ -1,14 +1,18 @@
 import Debug from 'debug';
 import shortid from 'shortid';
-import { Singleton } from 'typescript-ioc';
+import { Inject, OnlyInstantiableByContainer, Singleton } from 'typescript-ioc';
 import Poll from '../models/poll';
 import Room from '../models/room';
 import UserInfo from '../models/userInfo';
-import Vote from '../models/vote';
+import Vote from '../../shared/model/vote';
+import SocketManagerService from './socketManagerService';
 const debug = Debug("vote-scrum:services:roomManager");
 
 @Singleton
-class RoomService {
+@OnlyInstantiableByContainer
+export default class RoomService {
+    constructor(@Inject private socketManager: SocketManagerService) { }
+
     getRoom(id: string): Room | undefined {
         return this._rooms[id];
     }
@@ -64,9 +68,7 @@ class RoomService {
         };
         room.polls.set(poll.id, poll);
 
-        debug(`Created poll ${poll.id} in ${room.id}`);
-
-        // TODO emit polls added
+        this.socketManager.emitPollChanged(room, poll);
 
         return poll;
     }
@@ -86,5 +88,3 @@ class RoomService {
     _roomIdGenerator: { generate(): string } = shortid;
     private _rooms: { [id: string]: Room } = {};
 }
-
-export default RoomService;

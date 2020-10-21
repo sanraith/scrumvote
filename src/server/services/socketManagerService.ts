@@ -3,11 +3,13 @@ import { Server as HttpServer } from 'http';
 import cookie from 'cookie';
 import Debug from 'debug';
 import UserService, { UserCookies } from './userService';
-import { ClientActions, EmitResponse, JoinRoomData } from '../../shared/socket';
+import { ClientActions, ClientEvents, EmitResponse, JoinRoomData, PollsChangedData } from '../../shared/socket';
 import UserInfo from '../models/userInfo';
 import shortid from 'shortid';
 import UserSocketService from './userSocketService';
-import { Inject, Singleton } from 'typescript-ioc';
+import { Container, Inject, OnlyInstantiableByContainer, Singleton } from 'typescript-ioc';
+import Room from '../models/room';
+import Poll from '../models/poll';
 
 const debug = Debug('vote-scrum:services:socketManager');
 const errorDebug = Debug('vote-scrum:services:socketManager:ERROR');
@@ -19,6 +21,7 @@ enum SocketEvents {
 }
 
 @Singleton
+@OnlyInstantiableByContainer
 export default class SocketManagerService {
     @Inject
     private userService: UserService;
@@ -36,7 +39,7 @@ export default class SocketManagerService {
             // Save user socket
             if (!this.userSockets[userInfo.id]) { this.userSockets[userInfo.id] = []; }
             const userSockets = this.userSockets[userInfo.id];
-            const userSocket = new UserSocketService(userInfo, socket);
+            const userSocket = Container.get(UserSocketService).init(userInfo, socket);
             userSockets.push(userSocket);
             debug(`Client ${userInfo.name} #${userSockets.length - 1} connected: ${socket.client.id}`);
 
@@ -56,6 +59,29 @@ export default class SocketManagerService {
         });
 
         this.io = io;
+    }
+
+    emitPollChanged(room: Room, poll: Poll, targetUsers?: UserInfo[]) {
+        const recipients = targetUsers ?? room.users;
+        for (const targetUser of recipients) {
+            const targetSockets = this.userSockets[targetUser.id];
+            if (!targetSockets?.length) { debug(`Cannot reach player ${targetUser.name}`); continue; }
+
+            for (const targetSocket of targetSockets) {
+                const emittedData = <PollsChangedData>{
+                    polls: Array.from(room.polls.values()).map(p => ({
+                        id: p.id,
+                        question: p.question,
+                        votes: p.votes.map(v => ({
+                            user: v.user.publicInfo,
+                            vote: (p.isActive || v.user === targetUser) ? v.vote : null
+                        })),
+                        isActive: p.isActive
+                    }))
+                };
+                targetSocket.socket.emit(ClientEvents.pollChanged, emittedData);
+            }
+        }
     }
 
     private handleDisconnect(userInfo: UserInfo, socket: SocketIo.Socket, userSocket: UserSocketService) {

@@ -1,5 +1,5 @@
 import SocketIo from 'socket.io';
-import { Inject } from 'typescript-ioc';
+import { Factory, Inject, ObjectFactory, OnlyInstantiableByContainer, Scope } from 'typescript-ioc';
 import Room from '../models/room';
 import UserInfo from '../models/userInfo';
 import RoomService from './roomService';
@@ -7,16 +7,20 @@ import Debug from 'debug';
 import { JoinRoomData } from '../../shared/socket';
 const debug = Debug("vote-scrum:services:userSocket");
 
-export default class UserSocketService {
-    @Inject private roomService: RoomService;
+const userSocketFactory: ObjectFactory = context => new UserSocketService(context.resolve(RoomService));
 
+@Factory(userSocketFactory)
+export default class UserSocketService {
     userInfo: UserInfo;
     room?: Room;
     socket: SocketIo.Socket;
 
-    constructor(user: UserInfo, socket: SocketIo.Socket) {
+    constructor(@Inject private roomService: RoomService) { }
+
+    init(user: UserInfo, socket: SocketIo.Socket): UserSocketService {
         this.userInfo = user;
         this.socket = socket;
+        return this;
     }
 
     joinRoom(data: JoinRoomData) {

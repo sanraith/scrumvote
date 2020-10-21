@@ -39,8 +39,8 @@ export class RoomComponent implements OnInit, OnDestroy {
         this.user = this.userService.userData;
         this.roomId = this.route.snapshot.paramMap.get('id');
         this.roomAddress = window.location.href;
-        this.roomClient.init(this.roomId);
 
+        this.roomClient.init(this.roomId);
         this.roomClient.getRoomInfoAsync().subscribe(x => this.roomInfo = x);
 
         this.socketClient.connect();
@@ -49,6 +49,7 @@ export class RoomComponent implements OnInit, OnDestroy {
                 this.router.navigate(['']);
             }
         });
+        this.socketClient.pollChanged.subscribe(x => console.log(x));
     }
 
     ngOnDestroy(): void {

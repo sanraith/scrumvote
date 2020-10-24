@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { UserService } from '../services/user.service';
 
 @Component({
@@ -9,7 +10,9 @@ import { UserService } from '../services/user.service';
 export class UsernameComponent implements OnInit {
     userName: string;
 
-    constructor(private userService: UserService) {
+    constructor(
+        private userService: UserService,
+        private location: Location) {
         this.userName = this.userService.userData.name;
     }
 
@@ -19,5 +22,6 @@ export class UsernameComponent implements OnInit {
         this.userService.userData.name = this.userName;
         this.userService.userData.isNamePersonalized = true;
         this.userService.save();
+        this.location.back();
     }
 }

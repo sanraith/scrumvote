@@ -5,9 +5,10 @@ import UserInfo from '../models/userInfo';
 import RoomService from './roomService';
 import Debug from 'debug';
 import { JoinRoomData } from '../../shared/socket';
+import SocketManagerService from './socketManagerService';
 const debug = Debug("vote-scrum:services:userSocket");
 
-const userSocketFactory: ObjectFactory = context => new UserSocketService(context.resolve(RoomService));
+const userSocketFactory: ObjectFactory = context => new UserSocketService(context.resolve(RoomService), context.resolve(SocketManagerService));
 
 @Factory(userSocketFactory)
 export default class UserSocketService {
@@ -15,7 +16,7 @@ export default class UserSocketService {
     room?: Room;
     socket: SocketIo.Socket;
 
-    constructor(@Inject private roomService: RoomService) { }
+    constructor(@Inject private roomService: RoomService, @Inject private socketManager: SocketManagerService) { }
 
     init(user: UserInfo, socket: SocketIo.Socket): UserSocketService {
         this.userInfo = user;
@@ -30,6 +31,8 @@ export default class UserSocketService {
         this.room = room;
         this.socket.join(this.getRoomChannelId(this.room.id));
         this.roomService.joinRoom(room, this.userInfo);
+        this.socketManager.emitPollsChanged(room, [this.userInfo]);
+
         return { name: this.room.name, success: true };
     }
 

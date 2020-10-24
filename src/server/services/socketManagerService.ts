@@ -3,13 +3,14 @@ import { Server as HttpServer } from 'http';
 import cookie from 'cookie';
 import Debug from 'debug';
 import UserService, { UserCookies } from './userService';
-import { ClientActions, ClientEvents, EmitResponse, JoinRoomData, PollsChangedData } from '../../shared/socket';
+import { ClientActions, ClientEvents, EmitResponse, JoinRoomData, PollChangedData, PollsChangedData } from '../../shared/socket';
 import UserInfo from '../models/userInfo';
 import shortid from 'shortid';
 import UserSocketService from './userSocketService';
 import { Container, Inject, OnlyInstantiableByContainer, Singleton } from 'typescript-ioc';
 import Room from '../models/room';
 import Poll from '../models/poll';
+import PublicPollInfo from 'src/shared/model/publicPollInfo';
 
 const debug = Debug('vote-scrum:services:socketManager');
 const errorDebug = Debug('vote-scrum:services:socketManager:ERROR');
@@ -61,7 +62,7 @@ export default class SocketManagerService {
         this.io = io;
     }
 
-    emitPollChanged(room: Room, poll: Poll, targetUsers?: UserInfo[]) {
+    emitPollsChanged(room: Room, targetUsers?: UserInfo[]) {
         const recipients = targetUsers ?? room.users;
         for (const targetUser of recipients) {
             const targetSockets = this.userSockets[targetUser.id];
@@ -69,18 +70,37 @@ export default class SocketManagerService {
 
             for (const targetSocket of targetSockets) {
                 const emittedData = <PollsChangedData>{
-                    polls: Array.from(room.polls.values()).map(p => ({
-                        id: p.id,
-                        question: p.question,
-                        votes: p.votes.map(v => ({
-                            user: v.user.publicInfo,
-                            vote: (p.isActive || v.user === targetUser) ? v.vote : null
-                        })),
-                        isActive: p.isActive
-                    }))
+                    polls: Array.from(room.polls.values()).reverse().map(p => this.convertPollToPublicPollInfo(p, targetUser))
+                };
+                targetSocket.socket.emit(ClientEvents.pollListChanged, emittedData);
+            }
+        }
+    }
+
+    emitPollChanged(room: Room, poll: Poll, targetUsers?: UserInfo[]) {
+        const recipients = targetUsers ?? room.users;
+        for (const targetUser of recipients) {
+            const targetSockets = this.userSockets[targetUser.id];
+            if (!targetSockets?.length) { debug(`Cannot reach player ${targetUser.name}`); continue; }
+
+            for (const targetSocket of targetSockets) {
+                const emittedData = <PollChangedData>{
+                    poll: this.convertPollToPublicPollInfo(poll, targetUser)
                 };
                 targetSocket.socket.emit(ClientEvents.pollChanged, emittedData);
             }
+        }
+    }
+
+    private convertPollToPublicPollInfo(poll: Poll, targetUser: UserInfo): PublicPollInfo {
+        return {
+            id: poll.id,
+            question: poll.question,
+            votes: poll.votes.map(v => ({
+                user: v.user.publicInfo,
+                vote: (!poll.isActive || v.user === targetUser) ? v.vote : null
+            })),
+            isActive: poll.isActive
         }
     }
 

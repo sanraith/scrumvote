@@ -1,6 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import PublicPollInfo from 'src/shared/model/publicPollInfo';
 import PublicRoomInfo from 'src/shared/model/publicRoomInfo';
+import { PollChangedData, PollsChangedData } from 'src/shared/socket';
+import PollViewModel from '../models/pollViewModel';
 import { RoomClientService } from '../services/room-client.service';
 import { SocketClientService } from '../services/socket-client.service';
 import { ClientUser, UserService } from '../services/user.service';
@@ -27,6 +30,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
     roomName: string = null;
     roomInfo: PublicRoomInfo = null;
+    pollModels: PollViewModel[] = [];
 
     constructor(
         private router: Router,
@@ -49,7 +53,36 @@ export class RoomComponent implements OnInit, OnDestroy {
                 this.router.navigate(['']);
             }
         });
-        this.socketClient.pollChanged.subscribe(x => console.log(x));
+        this.pollModels = [];
+        this.socketClient.pollChanged.subscribe(args => this.handlePollChanged(args));
+        this.socketClient.pollListChanged.subscribe(args => this.handlePollListChanged(args));
+    }
+
+    copyPollData(source: PublicPollInfo, target: PollViewModel) {
+        target.id = source.id;
+        target.question = source.question;
+        target.isActive = source.isActive;
+        target.votes = source.votes.map(x => ({ name: x.user.name, vote: x.vote }));
+        target.isAlreadyVoted = source.votes.find(x => x.user.id === this.user.id) !== undefined;
+    }
+
+    handlePollListChanged(args: PollsChangedData): void {
+        this.pollModels.splice(0, this.pollModels.length);
+        args.polls.forEach(x => {
+            const newPoll = <PollViewModel>{};
+            this.pollModels.push(newPoll);
+            this.copyPollData(x, newPoll);
+        });
+    }
+
+    handlePollChanged(args: PollChangedData): void {
+        const existingPoll = this.pollModels.filter(x => x.id === args.poll.id)[0];
+        if (existingPoll) {
+            this.copyPollData(args.poll, existingPoll);
+        } else {
+            console.log("Error: Update for not existing poll!");
+            console.log(args.poll);
+        }
     }
 
     ngOnDestroy(): void {
@@ -69,5 +102,6 @@ export class RoomComponent implements OnInit, OnDestroy {
         this.roomClient.createPollAsync(this.newPollQuestion).subscribe(resp => {
             this.isBusy = false;
         });
+        this.newPollQuestion = '';
     }
 }

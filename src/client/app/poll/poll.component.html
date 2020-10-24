@@ -1,0 +1,17 @@
+<h4>{{poll.question}}</h4>
+
+<div *ngIf="isOwner && poll.isActive">
+    <button [disabled]="!poll.isActive || isBusy" (click)="closePoll()">Close poll</button>
+</div>
+
+<div *ngIf="poll.isActive && !poll.isAlreadyVoted">
+    <input type="text" [(ngModel)]="voteComment" placeholder="your vote" />
+    <button [disabled]="(voteComment | nullOrEmpty) || isBusy" (click)="submit()">OK</button>
+</div>
+
+<table>
+    <tr *ngFor="let vote of poll.votes">
+        <td>{{vote.name}}</td>
+        <td>{{vote.vote?.comment || '???'}}</td>
+    </tr>
+</table>

@@ -9,7 +9,8 @@ export enum ClientEvents {
     connect = "connect",
     disconnect = "disconnect",
     kickedFromRoom = "kicked_from_room",
-    pollChanged = "pollChanged"
+    pollChanged = "pollChanged",
+    pollListChanged = "pollListChanged"
 }
 
 export interface EmitResponse {
@@ -28,6 +29,10 @@ export interface KickUserData {
 export interface KickedFromRoomData {
     roomId: string,
     reason: string
+}
+
+export interface PollChangedData {
+    poll: PublicPollInfo
 }
 
 export interface PollsChangedData {

@@ -16,6 +16,10 @@
         <button class="bigButton" [disabled]="isBusy || !newPollQuestion || newPollQuestion.length === 0"
             (click)="createNewPoll()">Create</button>
     </div>
-
     <hr />
+
+    <h2>Polls</h2>
+    <div *ngFor="let poll of this.pollModels">
+        <app-poll [isOwner]="isOwner" [roomId]="roomId" [poll]="poll"></app-poll>
+    </div>
 </div>

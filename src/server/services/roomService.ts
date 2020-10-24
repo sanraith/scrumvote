@@ -23,7 +23,8 @@ export default class RoomService {
             name: name,
             owner: owner,
             users: [],
-            polls: new Map()
+            polls: new Map(),
+            deletionTokens: new Map<string, boolean>()
         };
         this._rooms[newRoom.id] = newRoom;
 
@@ -35,6 +36,7 @@ export default class RoomService {
         const existingUserIndex = room.users.findIndex(x => user.id == x.id);
         if (existingUserIndex > -1) { return; }
 
+        Array.from(room.deletionTokens.keys()).forEach(x => room.deletionTokens.set(x, false)); // cancel deletion for room
         room.users.push(user);
         debug(`User ${user.name} joined room ${room.id}.`);
         //TODO emit users changed
@@ -47,16 +49,27 @@ export default class RoomService {
         const leftPlayer = room.users.splice(existingUserIndex, 1)[0];
         if (room.users.length === 0) {
             // Delete room after some time if no users rejoin
-            // TODO refine this to cancel timeout after someone rejoins
-            // setTimeout(() => {
-            //     if (room.users.length === 0) { this.deleteRoom(room); }
-            // }, 60000);
+            const deleteToken = shortid();
+            room.deletionTokens.set(deleteToken, true);
+            setTimeout(token => this.deleteRoom(room.id, token), 5 * 60000, deleteToken);
+            debug(`Room ${room.id} is marked for deletion by token ${deleteToken}!`);
         }
 
         // TODO emit users changed
         // socketManager.emitPlayersChanged(room);
 
         debug(`Client ${leftPlayer.name} left room ${room.id}`);
+    }
+
+    deleteRoom(roomId: string, deleteToken?: string): void {
+        const room = this.getRoom(roomId);
+        if (room && (!deleteToken || room.deletionTokens.get(deleteToken))) {
+            debug(`Deleting room ${room.id}...`);
+            delete this._rooms[room.id];
+        } else {
+            room?.deletionTokens.delete(deleteToken);
+            debug(`Room deletion ${room.id}-${deleteToken} canceled.`);
+        }
     }
 
     createPoll(room: Room, question: string): Poll {

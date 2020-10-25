@@ -98,7 +98,7 @@ export default class SocketManagerService {
             question: poll.question,
             votes: poll.votes.map(v => ({
                 user: v.user.publicInfo,
-                vote: (!poll.isActive || v.user === targetUser) ? v.vote : null
+                vote: (!poll.isActive /*|| v.user === targetUser*/) ? v.vote : null // uncomment to show own vote while the poll is open
             })),
             isActive: poll.isActive
         }

@@ -99,10 +99,22 @@ export default class RoomService {
 
     closePoll(roomId: string, pollId: string, userInfo: UserInfo) {
         const room = this.getRoom(roomId);
+        if (userInfo !== room.owner) { return; }
+
         const poll = room.polls.get(pollId);
         if (poll.isActive) {
             poll.isActive = false;
             this.socketManager.emitPollChanged(room, poll);
+        }
+    }
+
+    deletePoll(roomId: string, pollId: string, userInfo: UserInfo) {
+        const room = this.getRoom(roomId);
+        if (userInfo !== room.owner) { return; }
+
+        const isDeleted = room.polls.delete(pollId);
+        if (isDeleted) {
+            this.socketManager.emitPollsChanged(room);
         }
     }
 

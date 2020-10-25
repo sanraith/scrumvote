@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import Debug from 'debug';
-import { CreateRoomResponse, CreatePollRequest, PollVoteRequest, CreatePollResponse, PollVoteResponse as VotePollResponse } from '../../shared/roomResponses';
+import { CreateRoomResponse, CreatePollRequest, PollVoteRequest, CreatePollResponse, PollVoteResponse as VotePollResponse, DeletePollRequest, DeletePollResponse } from '../../shared/roomResponses';
 import routerErrorHandler, { ErrorHandler } from './routerErrorHandler';
 import { Inject } from 'typescript-ioc';
 import RoomService from '../services/roomService';
@@ -82,6 +82,13 @@ export default class RoomRouter {
         this.router.post('/:roomId/poll/:pollId/close', (req, res) => this.handler(req, res, p => {
             this.roomService.closePoll(p.roomId, p.pollId, p.userInfo);
             res.json(<VotePollResponse>{
+                success: true
+            });
+        }));
+
+        this.router.post('/:roomId/poll/:pollId/delete', (req, res) => this.handler(req, res, p => {
+            this.roomService.deletePoll(p.roomId, p.pollId, p.userInfo);
+            res.json(<DeletePollResponse>{
                 success: true
             });
         }));

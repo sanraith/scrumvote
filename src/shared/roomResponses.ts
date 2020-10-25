@@ -27,5 +27,8 @@ export interface PollVoteRequest {
     value: number;
     comment: string;
 }
-export interface PollVoteResponse extends ResponseBase {
-}
+export interface PollVoteResponse extends ResponseBase { }
+
+export interface DeletePollRequest extends EmptyRequest { }
+
+export interface DeletePollResponse extends ResponseBase { }

@@ -2,7 +2,7 @@
     Connecting to room...
 </div>
 <div *ngIf="isConnected">
-    <h1>Vote room: {{roomName || roomId}}</h1>
+    <h1>{{roomName || roomId}}</h1>
     <div class="pure-form center-text">
         <span style="margin-right: 0.5em;">Room URL:</span>
         <input type="text" value="{{roomAddress}}" readonly #roomAddressInput style="width: 50%;" />
@@ -14,7 +14,8 @@
         <h2>Create new poll</h2>
         <div class="pure-g pure-form pure-form-stacked">
             <div class="pure-u-4-5">
-                <input type="text" [(ngModel)]="newPollQuestion" style="width: 100%;" />
+                <input type="text" [(ngModel)]="newPollQuestion" style="width: 100%;"
+                    (keyup)="uiHelper.onEnter(this, $event, createNewPoll)" />
             </div>
             <div class="pure-u-1-5" style="margin:auto">
                 <button class="pure-button pure-button-primary" style="width: 100%;"

@@ -1,0 +1,13 @@
+.glowing {
+    animation: voteGlow 1s infinite normal;
+}
+
+$glowSize: 5px;
+@keyframes voteGlow {
+    from {
+        box-shadow: 0 0 $glowSize -$glowSize rgba(0, 120, 231, 1);
+    }
+    to {
+        box-shadow: 0 0 $glowSize $glowSize rgba(0, 120, 231, 0);
+    }
+}

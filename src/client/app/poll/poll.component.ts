@@ -38,4 +38,14 @@ export class PollComponent implements OnInit {
             this.isBusy = false;
         });
     }
+
+    deletePoll(): void {
+        const shouldDelete = confirm(`Are you sure you want to delete the poll '${this.poll.question}'?`);
+        if (shouldDelete) {
+            this.isBusy = true;
+            this.roomClient.deletePollAsync(this.poll.id).subscribe(resp => {
+                this.isBusy = false;
+            });
+        }
+    }
 }

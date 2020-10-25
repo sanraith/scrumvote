@@ -6,6 +6,7 @@ import { PollChangedData, PollsChangedData } from 'src/shared/socket';
 import PollViewModel from '../models/pollViewModel';
 import { RoomClientService } from '../services/room-client.service';
 import { SocketClientService } from '../services/socket-client.service';
+import { UiHelperService } from '../services/ui-helper.service';
 import { ClientUser, UserService } from '../services/user.service';
 
 @Component({
@@ -35,6 +36,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     pollModels: PollViewModel[] = [];
 
     constructor(
+        public uiHelper: UiHelperService,
         private router: Router,
         private route: ActivatedRoute,
         private socketClient: SocketClientService,
@@ -100,6 +102,7 @@ export class RoomComponent implements OnInit, OnDestroy {
     }
 
     createNewPoll() {
+        if (!this.newPollQuestion || this.newPollQuestion.length === 0) { return; }
         this.isBusy = true;
         this.roomClient.createPollAsync(this.newPollQuestion).subscribe(resp => {
             this.isBusy = false;

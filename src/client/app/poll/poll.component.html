@@ -1,13 +1,16 @@
 <h4>
     {{poll.question}}
-    <button *ngIf="isOwner && poll.isActive" class="pure-button" [disabled]="!poll.isActive || isBusy"
-        (click)="closePoll()">Close poll</button>
+    <span style="margin-left: 1em;">&nbsp;</span>
+    <button *ngIf="isOwner && poll.isActive" class="pure-button pure-button-primary"
+        [disabled]="!poll.isActive || isBusy" (click)="closePoll()">✔</button>
+    <button *ngIf="isOwner" class="pure-button" [disabled]="isBusy" (click)="deletePoll()">✖</button>
+
 </h4>
 
 <div *ngIf="poll.isActive && !poll.isAlreadyVoted">
     <div class="pure-form pure-g pure-form pure-form-stacked">
         <div class="pure-u-4-5">
-            <input type="text" [(ngModel)]="voteComment" placeholder="your vote"
+            <input [class.glowing]="!isOwner" type="text" [(ngModel)]="voteComment" placeholder="your vote"
                 (keyup)="uiHelper.onEnter(this, $event, submit)" />
         </div>
         <div class="pure-u-1-5" style="margin: auto;">
@@ -27,6 +30,6 @@
     </thead>
     <tr *ngFor="let vote of poll.votes">
         <td>{{vote.name}}</td>
-        <td>{{vote.vote?.comment || '???'}}</td>
+        <td>{{vote.vote?.comment || '💡'}}</td>
     </tr>
 </table>

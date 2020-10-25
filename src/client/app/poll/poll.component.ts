@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import PollViewModel from '../models/pollViewModel';
 import { RoomClientService } from '../services/room-client.service';
+import { UiHelperService } from '../services/ui-helper.service';
 
 @Component({
     selector: 'app-poll',
@@ -15,13 +16,16 @@ export class PollComponent implements OnInit {
     isBusy: boolean = false;
     voteComment: string;
 
-    constructor(private roomClient: RoomClientService) { }
+    constructor(
+        public uiHelper: UiHelperService,
+        private roomClient: RoomClientService) { }
 
     ngOnInit(): void {
         this.roomClient.init(this.roomId);
     }
 
     submit(): void {
+        if (!this.voteComment || this.voteComment.length === 0) { return; }
         this.isBusy = true;
         this.roomClient.votePollAsync(this.poll.id, this.voteComment).subscribe(resp => {
             this.isBusy = false;

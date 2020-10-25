@@ -1,4 +1,13 @@
-<h2>Create room</h2>
-
-<input type="text" [(ngModel)]="roomName" />
-<button (click)="submit()" [disabled]="isBusy || (!roomName || roomName.length === 0)">OK</button>
+<h1>Create room</h1>
+<div class="pure-form pure-form-stacked">
+    Room name:<br />
+    <div class="pure-g">
+        <div class="pure-u-4-5">
+            <input type="text" [(ngModel)]="roomName" (keyup)="uiHelper.onEnter(this, $event, submit)" />
+        </div>
+        <div class="pure-u-1-5" style="margin:auto">
+            <button class="pure-button pure-button-primary" (click)="submit()" style="width: 100%;"
+                [disabled]="isBusy || (!roomName || roomName.length === 0)">OK</button>
+        </div>
+    </div>
+</div>

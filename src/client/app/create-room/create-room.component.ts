@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CREATE_ROOM_API } from 'src/shared/paths';
 import { CreateRoomRequest, CreateRoomResponse } from 'src/shared/roomResponses';
+import { UiHelperService } from '../services/ui-helper.service';
 
 @Component({
     selector: 'app-create-room',
@@ -13,7 +14,10 @@ export class CreateRoomComponent implements OnInit {
     roomName: string;
     isBusy = false;
 
-    constructor(private router: Router, private http: HttpClient) { }
+    constructor(
+        public uiHelper: UiHelperService,
+        private router: Router,
+        private http: HttpClient) { }
 
     ngOnInit(): void { }
 

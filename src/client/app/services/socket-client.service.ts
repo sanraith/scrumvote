@@ -18,13 +18,9 @@ export class SocketClientService {
     connect(): void {
         this.roomSocket.connect();
         this.roomSocket.on(ClientEvents.pollChanged, (args: PollChangedData) => {
-            console.log('poll');
-            console.log(args);
             this._pollChanged.dispatch(args);
         });
         this.roomSocket.on(ClientEvents.pollListChanged, (args: PollsChangedData) => {
-            console.log('polls');
-            console.log(args);
             this._pollListChanged.dispatch(args);
         });
     }

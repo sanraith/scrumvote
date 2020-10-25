@@ -1,3 +1,11 @@
-<h2>Set your name</h2>
-<input type="text" [(ngModel)]="userName" placeholder="your name" />
-<button [disabled]="userName | nullOrEmpty" (click)="submit()">OK</button>
+<h1>Enter your name!</h1>
+<div class="pure-form pure-form-stacked pure-g pure-form pure-form-stacked">
+    <div class="pure-u-4-5">
+        <input type="text" [(ngModel)]="userName" placeholder="your name"
+            (keyup)="uiHelper.onEnter(this, $event, submit)" />
+    </div>
+    <div class="pure-u-1-5" style="margin: auto;">
+        <button class="pure-button pure-button-primary" [disabled]="userName | nullOrEmpty" style="width: 100%;"
+            (click)="submit()">OK</button>
+    </div>
+</div>

@@ -28,6 +28,7 @@
         "morgan": "^1.10.0",
         "ngx-cookie-service": "^10.1.1",
         "ngx-socket-io": "^3.2.0",
+        "purecss": "^2.0.3",
         "rxjs": "~6.5.4",
         "shortid": "^2.2.15",
         "socket.io": "^2.3.0",

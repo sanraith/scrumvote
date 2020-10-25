@@ -1,15 +1,30 @@
-<h4>{{poll.question}}</h4>
-
-<div *ngIf="isOwner && poll.isActive">
-    <button [disabled]="!poll.isActive || isBusy" (click)="closePoll()">Close poll</button>
-</div>
+<h4>
+    {{poll.question}}
+    <button *ngIf="isOwner && poll.isActive" class="pure-button" [disabled]="!poll.isActive || isBusy"
+        (click)="closePoll()">Close poll</button>
+</h4>
 
 <div *ngIf="poll.isActive && !poll.isAlreadyVoted">
-    <input type="text" [(ngModel)]="voteComment" placeholder="your vote" />
-    <button [disabled]="(voteComment | nullOrEmpty) || isBusy" (click)="submit()">OK</button>
+    <div class="pure-form pure-g pure-form pure-form-stacked">
+        <div class="pure-u-4-5">
+            <input type="text" [(ngModel)]="voteComment" placeholder="your vote"
+                (keyup)="uiHelper.onEnter(this, $event, submit)" />
+        </div>
+        <div class="pure-u-1-5" style="margin: auto;">
+            <button class="pure-button pure-button-primary" [disabled]="(voteComment | nullOrEmpty) || isBusy"
+                (click)="submit()" style="width: 100%;">Vote</button>
+        </div>
+    </div>
 </div>
 
-<table>
+<table *ngIf="poll.votes?.length || 0 > 0" class="pure-table pure-table-bordered pure-table-striped"
+    style="width: 100%;">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Vote</th>
+        </tr>
+    </thead>
     <tr *ngFor="let vote of poll.votes">
         <td>{{vote.name}}</td>
         <td>{{vote.vote?.comment || '???'}}</td>

@@ -28,7 +28,9 @@ export class RoomComponent implements OnInit, OnDestroy {
     get isOwner(): boolean {
         return this.roomInfo && this.user.id === this.roomInfo.owner.id;
     }
-    roomName: string = null;
+    get roomName(): string {
+        return this.roomInfo?.name ?? 'Unknown room';
+    }
     roomInfo: PublicRoomInfo = null;
     pollModels: PollViewModel[] = [];
 

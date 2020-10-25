@@ -1,1 +1,59 @@
-/* You can add global styles to this file, and also import other style files */
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+/*
+ * -- BASE STYLES --
+ * Most of these are inherited from Base, but I want to change a few.
+ */
+body {
+    line-height: 1.7em;
+    color: #7f8c8d;
+    font-size: 14px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+label {
+    color: #34495e;
+}
+
+/*
+ * -- PURE FORM STYLES --
+ * Style the form inputs and labels
+ */
+.pure-form label {
+    margin: 1em 0 0;
+    font-weight: bold;
+    font-size: 100%;
+}
+
+.pure-form input[type] {
+    // border: 2px solid #ddd;
+    // box-shadow: none;
+    font-size: 100%;
+    width: 100%;
+    margin-right: 0.5em;
+    // margin-bottom: 1em;
+}
+
+.content-wrapper {
+    // border: 1px #2d3e50 solid;
+    // border-top: 0;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.2);
+    padding: 1em 2em 2em 2em;
+}
+
+.center-text {
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+}

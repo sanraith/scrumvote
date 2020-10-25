@@ -10,6 +10,7 @@ import { RoomComponent } from './room/room.component';
 import { SocketIoConfig, SocketIoModule } from 'ngx-socket-io';
 import { PollComponent } from './poll/poll.component';
 import { NullOrEmptyPipe } from './pipes/null-or-empty.pipe';
+import { HomeComponent } from './home/home.component';
 
 const config: SocketIoConfig = { url: '', options: { autoConnect: false } };
 
@@ -20,7 +21,8 @@ const config: SocketIoConfig = { url: '', options: { autoConnect: false } };
         CreateRoomComponent,
         RoomComponent,
         PollComponent,
-        NullOrEmptyPipe
+        NullOrEmptyPipe,
+        HomeComponent
     ],
     imports: [
         BrowserModule,

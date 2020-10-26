@@ -1,12 +1,11 @@
 import express, { Router } from 'express';
 import Debug from 'debug';
-import { CreateRoomResponse, CreatePollRequest, PollVoteRequest, CreatePollResponse, PollVoteResponse as VotePollResponse, DeletePollRequest, DeletePollResponse } from '../../shared/roomResponses';
+import { CreateRoomResponse, CreatePollRequest, PollVoteRequest, CreatePollResponse, PollVoteResponse as VotePollResponse, DeletePollRequest, DeletePollResponse, RoomInfoResponse, ClosePollResponse } from '../../shared/roomResponses';
 import routerErrorHandler, { ErrorHandler } from './routerErrorHandler';
 import { Inject } from 'typescript-ioc';
 import RoomService from '../services/roomService';
 import UserService from '../services/userService';
 import UserInfo from '../models/userInfo';
-import PublicRoomInfo from 'src/shared/model/publicRoomInfo';
 const debug = Debug('vote-scrum:routes:roomRouter');
 const errorDebug = Debug('vote-scrum:routes:roomRouter:ERROR');
 
@@ -42,6 +41,10 @@ export default class RoomRouter {
         this.router.post('/create', (req, res) => this.handler(req, res, p => {
             const name = req.body?.name ?? `${p.userInfo.name}'s room`;
             const room = this.roomService.createRoom(p.userInfo, name);
+            if (!room) {
+                res.json(<CreateRoomResponse>{ success: false, error: 'Room not found.' });
+                return;
+            }
 
             res.json(<CreateRoomResponse>{
                 id: room.id,
@@ -52,17 +55,29 @@ export default class RoomRouter {
 
         this.router.get('/:roomId/info', (req, res) => this.handler(req, res, p => {
             const room = this.roomService.getRoom(p.roomId);
-            res.json(<PublicRoomInfo>{
-                id: room.id,
-                name: room.name,
-                owner: room.owner.publicInfo,
-                users: room.users.map(u => u.publicInfo)
+            if (!room) {
+                res.json(<RoomInfoResponse>{ success: false, error: 'Room not found.' });
+                return;
+            }
+
+            res.json(<RoomInfoResponse>{
+                success: true,
+                room: {
+                    id: room.id,
+                    name: room.name,
+                    owner: room.owner.publicInfo,
+                    users: room.users.map(u => u.publicInfo)
+                }
             });
         }));
 
         this.router.post('/:roomId/poll/create', (req, res) => this.handler(req, res, p => {
             const params: CreatePollRequest = req.body;
             const room = this.roomService.getRoom(p.roomId);
+            if (!room) {
+                res.json(<CreatePollResponse>{ success: false, error: 'Room not found.' });
+                return;
+            }
             const poll = this.roomService.createPoll(room, params.question);
 
             res.json(<CreatePollResponse>{
@@ -73,23 +88,23 @@ export default class RoomRouter {
 
         this.router.post('/:roomId/poll/:pollId/vote', (req, res) => this.handler(req, res, p => {
             const params: PollVoteRequest = req.body;
-            this.roomService.votePoll(p.roomId, p.pollId, p.userInfo, { comment: params.comment, value: params.value }); // TODO check for foreign object?
+            const success = this.roomService.votePoll(p.roomId, p.pollId, p.userInfo, { comment: params.comment, value: params.value }); // TODO check for foreign object?
             res.json(<VotePollResponse>{
-                success: true
+                success: success
             });
         }));
 
         this.router.post('/:roomId/poll/:pollId/close', (req, res) => this.handler(req, res, p => {
-            this.roomService.closePoll(p.roomId, p.pollId, p.userInfo);
-            res.json(<VotePollResponse>{
-                success: true
+            const success = this.roomService.closePoll(p.roomId, p.pollId, p.userInfo);
+            res.json(<ClosePollResponse>{
+                success: success
             });
         }));
 
         this.router.post('/:roomId/poll/:pollId/delete', (req, res) => this.handler(req, res, p => {
-            this.roomService.deletePoll(p.roomId, p.pollId, p.userInfo);
+            const success = this.roomService.deletePoll(p.roomId, p.pollId, p.userInfo);
             res.json(<DeletePollResponse>{
-                success: true
+                success: success
             });
         }));
     }

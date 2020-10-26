@@ -47,19 +47,26 @@ export class RoomComponent implements OnInit, OnDestroy {
         this.user = this.userService.userData;
         this.roomId = this.route.snapshot.paramMap.get('id');
         this.roomAddress = window.location.href;
-
         this.roomClient.init(this.roomId);
-        this.roomClient.getRoomInfoAsync().subscribe(x => this.roomInfo = x);
 
-        this.socketClient.connect();
-        this.socketClient.joinRoomAsync(this.roomId).subscribe(joinSuccess => {
-            if (!joinSuccess) {
-                this.router.navigate(['']);
-            }
+        this.socketClient.disconnected.subscribe(() => console.log('Socket disconnected.'));
+        this.socketClient.connected.subscribe(() => {
+            console.log('Socket connected.');
+            this.roomClient.getRoomInfoAsync().subscribe(resp => {
+                if (resp.success) {
+                    this.roomInfo = resp.room;
+                }
+            });
+            this.socketClient.joinRoomAsync(this.roomId).subscribe(joinSuccess => {
+                if (!joinSuccess) {
+                    console.log('Room does not exist anymore, redirecting to home.');
+                    this.router.navigate(['']);
+                }
+            });
         });
-        this.pollModels = [];
         this.socketClient.pollChanged.subscribe(args => this.handlePollChanged(args));
         this.socketClient.pollListChanged.subscribe(args => this.handlePollListChanged(args));
+        this.socketClient.connect();
     }
 
     copyPollData(source: PublicPollInfo, target: PollViewModel) {

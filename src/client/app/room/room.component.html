@@ -1,5 +1,5 @@
-<div *ngIf="!isConnected">
-    Connecting to room...
+<div *ngIf="!isConnected" style="text-align:center;">
+    <img src="assets/spinner-1s-50px.gif" />
 </div>
 <div *ngIf="isConnected">
     <h1>{{roomName || roomId}}</h1>

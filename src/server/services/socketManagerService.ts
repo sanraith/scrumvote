@@ -65,7 +65,7 @@ export default class SocketManagerService {
     emitPollsChanged(room: Room, targetUsers?: UserInfo[]) {
         const recipients = targetUsers ?? room.users;
         for (const targetUser of recipients) {
-            const targetSockets = this.userSockets[targetUser.id];
+            const targetSockets = this.getUserSocketsForRoom(targetUser, room);
             if (!targetSockets?.length) { debug(`Cannot reach player ${targetUser.name}`); continue; }
 
             for (const targetSocket of targetSockets) {
@@ -80,7 +80,7 @@ export default class SocketManagerService {
     emitPollChanged(room: Room, poll: Poll, targetUsers?: UserInfo[]) {
         const recipients = targetUsers ?? room.users;
         for (const targetUser of recipients) {
-            const targetSockets = this.userSockets[targetUser.id];
+            const targetSockets = this.getUserSocketsForRoom(targetUser, room);
             if (!targetSockets?.length) { debug(`Cannot reach player ${targetUser.name}`); continue; }
 
             for (const targetSocket of targetSockets) {
@@ -105,23 +105,9 @@ export default class SocketManagerService {
     }
 
     private handleDisconnect(userInfo: UserInfo, socket: SocketIo.Socket, userSocket: UserSocketService) {
-        if (!this.userSockets[userInfo.id]) {
-            debug(`Disconnecting ${socket.id}, but cannot find any saved sockets for user ${userInfo.name}!`);
-        }
-
-        const userSockets = this.userSockets[userInfo.id];
-        const index = userSockets.indexOf(userSocket);
-        if (index < 0) {
-            debug(`Disconnecting ${socket.id}, but cannot find saved socket for user ${userInfo.name}!`);
-        }
-
-        userSocket.socket.removeAllListeners();
-        userSockets.splice(index, 1);
-        if (userSockets.length === 0) {
-            userSocket.leaveCurrentRoom();
-            delete this.userSockets[userInfo.id];
-        }
-        debug(`Disconnecting user ${userInfo.name} socket ${socket.client.id}. ${userSockets.length} connections remain.`);
+        this.disconnectSocket(userSocket);
+        const remainingSocketCount = this.userSockets[userInfo.id]?.length ?? 0;
+        debug(`Disconnecting user ${userInfo.name} socket ${socket.client.id}. ${remainingSocketCount} connections remain.`);
     }
 
     private handleUserSocketError(userSocket: UserSocketService, action: () => void) {
@@ -131,19 +117,42 @@ export default class SocketManagerService {
             const errorId = `err_${shortid()}`;
             errorDebug(`${errorId}:`, error);
             // TODO handle room and all room members in case of an error
-            this.disconnectAllSocketsFor(userSocket.userInfo);
+            this.disconnectAllSocketsInRoom(userSocket);
             errorDebug(`${errorId} cleanup finished.`);
         }
     }
 
-    private disconnectAllSocketsFor(user: UserInfo) {
-        const sockets = this.userSockets[user.id];
-        for (let socket of sockets ?? []) {
-            // TODO socket.markUserAsDisconnected();
-            socket.socket.disconnect();
-            socket.socket.removeAllListeners();
+    private disconnectAllSocketsInRoom(userSocket: UserSocketService) {
+        const userRoomSockets = this.getUserSocketsForRoom(userSocket.userInfo, userSocket.room);
+        for (let socket of userRoomSockets ?? []) {
+            this.disconnectSocket(socket);
         }
-        delete this.userSockets[user.id];
+    }
+
+    private disconnectSocket(userSocket: UserSocketService): void {
+        const userInfo = userSocket.userInfo;
+        const userSockets = this.userSockets[userInfo.id];
+        const index = userSockets.indexOf(userSocket);
+        if (index < 0) {
+            debug(`Disconnecting ${userSocket.socket.id}, but cannot find saved socket for user ${userInfo.name}!`);
+            return;
+        }
+        userSockets.splice(index, 1);
+        if (userSockets.length === 0) {
+            delete this.userSockets[userInfo.id];
+        }
+        userSocket.socket.disconnect();
+        userSocket.socket.removeAllListeners();
+
+        const roomOfSocket = userSocket.room;
+        if (roomOfSocket && this.getUserSocketsForRoom(userInfo, roomOfSocket).length === 0) {
+            userSocket.leaveCurrentRoom();
+            debug(`Removed user ${userInfo.name} from room ${roomOfSocket.id} due to disconnect.`);
+        }
+    }
+
+    private getUserSocketsForRoom(userInfo: UserInfo, room: Room): UserSocketService[] {
+        return this.userSockets[userInfo.id]?.filter(x => x.room === room) ?? [];
     }
 
     private getUserFromSocketCookies(cookies: any): UserInfo | undefined {

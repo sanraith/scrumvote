@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import PublicRoomInfo from 'src/shared/model/publicRoomInfo';
 import { CLOSE_POLL_API, CREATE_POLL_API, DELETE_POLL_API, POLL_ID_PARAM, ROOM_ID_PARAM, ROOM_INFO_API, VOTE_POLL_API } from 'src/shared/paths';
-import { CreatePollRequest, CreatePollResponse, DeletePollRequest, DeletePollResponse, EmptyRequest, PollVoteRequest as VotePollRequest, PollVoteResponse as VotePollResponse, ResponseBase } from 'src/shared/roomResponses';
+import { CreatePollRequest, CreatePollResponse, DeletePollRequest, DeletePollResponse, EmptyRequest, PollVoteRequest as VotePollRequest, PollVoteResponse as VotePollResponse, ResponseBase, RoomInfoResponse } from 'src/shared/roomResponses';
 
 @Injectable({
     providedIn: 'root'
@@ -17,8 +16,8 @@ export class RoomClientService {
         this.roomId = roomId;
     }
 
-    getRoomInfoAsync(): Observable<PublicRoomInfo> {
-        return this.httpClient.get<PublicRoomInfo>(ROOM_INFO_API.replace(ROOM_ID_PARAM, this.roomId));
+    getRoomInfoAsync(): Observable<RoomInfoResponse> {
+        return this.httpClient.get<RoomInfoResponse>(ROOM_INFO_API.replace(ROOM_ID_PARAM, this.roomId));
     }
 
     createPollAsync(question: string): Observable<CreatePollResponse> {

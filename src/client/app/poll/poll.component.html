@@ -1,33 +1,35 @@
-<h4>
+<h3>
     {{poll.question}}
-    <span style="margin-left: 1em;">&nbsp;</span>
-    <button *ngIf="isOwner && poll.isActive" class="pure-button pure-button-primary"
-        [disabled]="!poll.isActive || isBusy" (click)="closePoll()">✔</button>
-    <button *ngIf="isOwner" class="pure-button" [disabled]="isBusy" (click)="deletePoll()">✖</button>
+    <span style="margin-left: 0.5em;font-size: 80%;">
+        <button *ngIf="isOwner && poll.isActive" class="pure-button pure-button-primary"
+            [disabled]="!poll.isActive || isBusy" (click)="closePoll()">✔</button>
+        <button *ngIf="isOwner" class="pure-button" [disabled]="isBusy" (click)="deletePoll()">✖</button>
+    </span>
+</h3>
 
-</h4>
-
-<div *ngIf="poll.isActive && !poll.isAlreadyVoted">
-    <div class="pure-form pure-g pure-form pure-form-stacked">
-        <div class="pure-u-4-5">
-            <input [class.glowing]="!isOwner" type="text" [(ngModel)]="voteComment" placeholder="your vote"
-                (keyup)="uiHelper.onEnter(this, $event, submit)" />
-        </div>
-        <div class="pure-u-1-5" style="margin: auto;">
-            <button class="pure-button pure-button-primary" [disabled]="(voteComment | nullOrEmpty) || isBusy"
-                (click)="submit()" style="width: 100%;">Vote</button>
-        </div>
-    </div>
-</div>
-
-<table *ngIf="poll.votes?.length || 0 > 0" class="pure-table pure-table-bordered pure-table-striped"
-    style="width: 100%;">
+<table *ngIf="true || poll.votes?.length || 0 > 0" class="pure-table pure-table-bordered pure-table-striped"
+    style="min-width: 300px;">
     <thead>
         <tr>
-            <th>Name</th>
+            <th style="width: 50%;">Name</th>
             <th>Vote</th>
         </tr>
     </thead>
+    <tr *ngIf="poll.isActive && !poll.isAlreadyVoted">
+        <td>{{userName}}</td>
+        <td>
+            <div class="pure-form pure-form">
+                <div style="display: inline-block;">
+                    <input [class.glowing]="!isOwner" type="text" [(ngModel)]="voteComment" placeholder="your vote"
+                        (keyup)="uiHelper.onEnter(this, $event, submit)" />
+                </div>
+                <div style="margin: auto; margin-left: 0.5em; display: inline-block;">
+                    <button class="pure-button pure-button-primary" [disabled]="(voteComment | nullOrEmpty) || isBusy"
+                        (click)="submit()" style="width: 100%;">Vote</button>
+                </div>
+            </div>
+        </td>
+    </tr>
     <tr *ngFor="let vote of poll.votes">
         <td>{{vote.name}}</td>
         <td>{{vote.vote?.comment || '💡'}}</td>

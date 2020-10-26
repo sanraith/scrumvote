@@ -25,10 +25,12 @@
         </div>
     </div>
 
-    <div *ngIf="pollModels?.length || 0 > 0">
-        <h2 style="margin-top: 2em;">Polls</h2>
-        <div *ngFor="let poll of this.pollModels" style="margin-top: 3em;">
+    <div *ngIf="pollModels?.length || 0 > 0 else noPolls">
+        <div *ngFor="let poll of this.pollModels" style="margin-top: 4em;">
             <app-poll [isOwner]="isOwner" [roomId]="roomId" [poll]="poll"></app-poll>
         </div>
     </div>
+    <ng-template #noPolls>
+        <h3 style="margin-top: 3em;">No polls have been created yet.</h3>
+    </ng-template>
 </div>

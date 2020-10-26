@@ -5,13 +5,14 @@
         <li class="pure-menu-item"><a routerLink="/createRoom" class="pure-menu-link">New room</a></li>
         <li class="pure-menu-item">
             <a routerLink="/user" class="pure-menu-link">
-                User: <span style="font-style: italic;">{{userService.userData.name || 'Unknown user'}}</span>
+                Change username
+                <span style="font-weight: 400;">({{userService.userData.name || 'Unknown user'}})</span>
             </a>
         </li>
     </ul>
 </div>
 
-<div class="pure-g">
+<div class="pure-g" style="padding-bottom: 1em;">
     <div class="pure-u-0 pure-u-md-1-4">&nbsp;</div>
     <div class="pure-u-1 pure-u-md-1-2 content-wrapper" role="main">
         <router-outlet></router-outlet>

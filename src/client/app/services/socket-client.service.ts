@@ -46,7 +46,6 @@ export class SocketClientService {
     }
 
     disconnect(): void {
-        this.roomSocket.emit(ClientActions.leaveRoom, null, (resp: EmitResponse) => { });
         this.roomSocket.removeAllListeners();
         this.roomSocket.disconnect();
         [this._connected, this._disconnected, this._pollChanged, this._pollListChanged]

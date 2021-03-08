@@ -32,6 +32,7 @@ export default class UserSocketService {
         this.socket.join(this.getRoomChannelId(this.room.id));
         this.roomService.joinRoom(room, this.userInfo);
         this.socketManager.emitPollsChanged(room, [this.userInfo]);
+        this.socketManager.emitUsersChanged(room);
 
         return { name: this.room.name, success: true };
     }
@@ -40,6 +41,7 @@ export default class UserSocketService {
         if (this.room) {
             debug(`Client ${this.userInfo.name} left room ${this.room.id}.`);
             this.roomService.leaveRoom(this.room, this.userInfo);
+            this.socketManager.emitUsersChanged(this.room);
             return { success: true };
         } else {
             debug(`Client ${this.userInfo.name} tried to leave room, but is not part of any room!`);

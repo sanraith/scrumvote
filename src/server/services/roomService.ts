@@ -39,7 +39,6 @@ export default class RoomService {
         Array.from(room.deletionTokens.keys()).forEach(x => room.deletionTokens.set(x, false)); // cancel deletion for room
         room.users.push(user);
         debug(`User ${user.name} joined room ${room.id}.`);
-        //TODO emit users changed
     }
 
     leaveRoom(room: Room, user: UserInfo): void {
@@ -54,9 +53,6 @@ export default class RoomService {
             setTimeout(token => this.deleteRoom(room.id, token), 5 * 60000, deleteToken);
             debug(`Room ${room.id} is marked for deletion by token ${deleteToken}!`);
         }
-
-        // TODO emit users changed
-        // socketManager.emitPlayersChanged(room);
 
         debug(`Client ${leftPlayer.name} left room ${room.id}`);
     }

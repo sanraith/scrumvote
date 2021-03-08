@@ -2,7 +2,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import PublicPollInfo from 'src/shared/model/publicPollInfo';
 import PublicRoomInfo from 'src/shared/model/publicRoomInfo';
-import { PollChangedData, PollsChangedData } from 'src/shared/socket';
+import PublicUserInfo from 'src/shared/model/publicUserInfo';
+import { PollChangedData, PollsChangedData, UsersChangedData } from 'src/shared/socket';
 import PollViewModel from '../models/pollViewModel';
 import { RoomClientService } from '../services/room-client.service';
 import { SocketClientService } from '../services/socket-client.service';
@@ -32,8 +33,12 @@ export class RoomComponent implements OnInit, OnDestroy {
     get roomName(): string {
         return this.roomInfo?.name ?? 'Unknown room';
     }
+    get userNames(): string[] {
+        return this.users.map(x => x.name).sort((a, b) => a.localeCompare(b));
+    }
     roomInfo: PublicRoomInfo = null;
     pollModels: PollViewModel[] = [];
+    users: PublicUserInfo[] = [];
 
     constructor(
         public uiHelper: UiHelperService,
@@ -66,6 +71,7 @@ export class RoomComponent implements OnInit, OnDestroy {
         });
         this.socketClient.pollChanged.subscribe(args => this.handlePollChanged(args));
         this.socketClient.pollListChanged.subscribe(args => this.handlePollListChanged(args));
+        this.socketClient.usersChanged.subscribe(args => this.handleUsersChanged(args));
         this.socketClient.connect();
     }
 
@@ -99,6 +105,10 @@ export class RoomComponent implements OnInit, OnDestroy {
             console.log("Error: Update for not existing poll!");
             console.log(args.poll);
         }
+    }
+
+    handleUsersChanged(args: UsersChangedData) {
+        this.users = args.users;
     }
 
     ngOnDestroy(): void {

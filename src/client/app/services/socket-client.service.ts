@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Observable } from 'rxjs';
 import { SimpleEventDispatcher } from 'strongly-typed-events';
-import { ClientActions, ClientEvents, EmitResponse, JoinRoomData, PollChangedData, PollsChangedData } from '../../../shared/socket';
+import { ClientActions, ClientEvents, EmitResponse, JoinRoomData, PollChangedData, PollsChangedData, UsersChangedData } from '../../../shared/socket';
 
 @Injectable({
     providedIn: 'root'
@@ -12,11 +12,13 @@ export class SocketClientService {
     private _disconnected = new SimpleEventDispatcher<void>();
     private _pollChanged = new SimpleEventDispatcher<PollChangedData>();
     private _pollListChanged = new SimpleEventDispatcher<PollsChangedData>();
+    private _usersChanged = new SimpleEventDispatcher<UsersChangedData>();
 
     get connected() { return this._connected.asEvent(); }
     get disconnected() { return this._disconnected.asEvent(); }
     get pollChanged() { return this._pollChanged.asEvent(); }
     get pollListChanged() { return this._pollListChanged.asEvent(); }
+    get usersChanged() { return this._usersChanged.asEvent(); }
 
     constructor(private roomSocket: Socket) { }
 
@@ -32,6 +34,9 @@ export class SocketClientService {
         });
         this.roomSocket.on(ClientEvents.pollListChanged, (args: PollsChangedData) => {
             this._pollListChanged.dispatch(args);
+        });
+        this.roomSocket.on(ClientEvents.usersChanged, (args: UsersChangedData) => {
+            this._usersChanged.dispatch(args);
         });
         this.roomSocket.connect();
     }

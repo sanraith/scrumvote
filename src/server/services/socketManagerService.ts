@@ -3,7 +3,7 @@ import { Server as HttpServer } from 'http';
 import cookie from 'cookie';
 import Debug from 'debug';
 import UserService, { UserCookies } from './userService';
-import { ClientActions, ClientEvents, EmitResponse, JoinRoomData, PollChangedData, PollsChangedData } from '../../shared/socket';
+import { ClientActions, ClientEvents, EmitResponse, JoinRoomData, PollChangedData, PollsChangedData, UsersChangedData } from '../../shared/socket';
 import UserInfo from '../models/userInfo';
 import shortid from 'shortid';
 import UserSocketService from './userSocketService';
@@ -88,6 +88,19 @@ export default class SocketManagerService {
                     poll: this.convertPollToPublicPollInfo(poll, targetUser)
                 };
                 targetSocket.socket.emit(ClientEvents.pollChanged, emittedData);
+            }
+        }
+    }
+
+    emitUsersChanged(room: Room) {
+        const recipients = [room.owner];
+        for (const targetUser of recipients) {
+            const targetSockets = this.getUserSocketsForRoom(targetUser, room);
+            if (!targetSockets?.length) { debug(`Cannot reach player ${targetUser.name}`); continue; }
+
+            for (const targetSocket of targetSockets) {
+                const emittedData = <UsersChangedData>{ users: room.users.map(x => x.publicInfo) };
+                targetSocket.socket.emit(ClientEvents.usersChanged, emittedData);
             }
         }
     }

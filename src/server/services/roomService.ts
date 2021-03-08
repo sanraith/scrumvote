@@ -94,11 +94,28 @@ export default class RoomService {
         const isVotedAlready = poll.votes.filter(x => x.user === userInfo).length > 0;
 
         if (!isVotedAlready) {
-            poll.votes.push({ user: userInfo, vote: vote });
+            const voteId = this._voteIdGenerator.generate();
+            poll.votes.push({ id: voteId, user: userInfo, vote: vote });
             this.socketManager.emitPollChanged(room, poll);
         }
 
         return !isVotedAlready;
+    }
+
+    cancelVote(roomId: string, pollId: string, userInfo: UserInfo, voteId: string): boolean {
+        const room = this.getRoom(roomId);
+        if (!room) { return false; }
+        const poll = room.polls.get(pollId);
+        if (!poll) { return false; }
+        if (!poll.isActive) { return false; }
+        const voteIndex = poll.votes.findIndex(x => x.id === voteId);
+        if (voteIndex < 0) { return false; }
+        const vote = poll.votes[voteIndex];
+        if (vote.user.id !== userInfo.id) { return false; }
+
+        poll.votes.splice(voteIndex, 1);
+        this.socketManager.emitPollChanged(room, poll);
+        return true;
     }
 
     closePoll(roomId: string, pollId: string, userInfo: UserInfo): boolean {
@@ -126,7 +143,8 @@ export default class RoomService {
         return isDeleted;
     }
 
-    _pollIdGenerator: { generate(): string } = shortid;
-    _roomIdGenerator: { generate(): string } = shortid;
-    private _rooms: { [id: string]: Room } = {};
+    _pollIdGenerator: { generate(): string; } = shortid;
+    _roomIdGenerator: { generate(): string; } = shortid;
+    _voteIdGenerator: { generate(): string; } = shortid;
+    private _rooms: { [id: string]: Room; } = {};
 }

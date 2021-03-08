@@ -5,5 +5,5 @@ export default interface PollViewModel {
     isAlreadyVoted: boolean;
     id: string;
     question: string;
-    votes: { name: string, vote: Vote }[]
+    votes: { id: string, name: string, userId: string, vote: Vote; }[];
 }

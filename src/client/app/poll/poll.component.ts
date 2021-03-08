@@ -20,8 +20,8 @@ export class PollComponent implements OnInit {
 
     constructor(
         public uiHelper: UiHelperService,
-        private roomClient: RoomClientService,
-        private userService: UserService
+        public userService: UserService,
+        private roomClient: RoomClientService
     ) { }
 
     ngOnInit(): void {
@@ -32,6 +32,13 @@ export class PollComponent implements OnInit {
         if (!this.voteComment || this.voteComment.length === 0) { return; }
         this.isBusy = true;
         this.roomClient.votePollAsync(this.poll.id, this.voteComment).subscribe(resp => {
+            this.isBusy = false;
+        });
+    }
+
+    cancelVote(voteId: string): void {
+        this.isBusy = true;
+        this.roomClient.cancelVoteAsync(this.poll.id, voteId).subscribe(resp => {
             this.isBusy = false;
         });
     }

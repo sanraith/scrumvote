@@ -32,6 +32,11 @@
     </tr>
     <tr *ngFor="let vote of poll.votes">
         <td>{{vote.name}}</td>
-        <td>{{vote.vote?.comment || '💡'}}</td>
+        <td *ngIf="vote.vote">{{vote.vote.comment}}</td>
+        <td *ngIf="!vote.vote">
+            💡
+            <img *ngIf="vote.userId === userService.userData.id" (click)="cancelVote(vote.id)" src="assets/edit.png"
+                class="editIcon" />
+        </td>
     </tr>
 </table>

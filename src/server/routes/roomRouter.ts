@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import Debug from 'debug';
-import { CreateRoomResponse, CreatePollRequest, PollVoteRequest, CreatePollResponse, PollVoteResponse as VotePollResponse, DeletePollRequest, DeletePollResponse, RoomInfoResponse, ClosePollResponse } from '../../shared/roomResponses';
+import { CreateRoomResponse, CreatePollRequest, PollVoteRequest, CreatePollResponse, PollVoteResponse as VotePollResponse, DeletePollRequest, DeletePollResponse, RoomInfoResponse, ClosePollResponse, CancelVoteResponse, CancelVoteRequest } from '../../shared/roomResponses';
 import routerErrorHandler, { ErrorHandler } from './routerErrorHandler';
 import { Inject } from 'typescript-ioc';
 import RoomService from '../services/roomService';
@@ -12,12 +12,12 @@ const errorDebug = Debug('vote-scrum:routes:roomRouter:ERROR');
 interface ParsedRequestParams {
     userInfo: UserInfo,
     roomId: string,
-    pollId: string
+    pollId: string;
 }
 
 export default class RoomRouter {
     @Inject private roomService: RoomService;
-    @Inject private userService: UserService
+    @Inject private userService: UserService;
 
     router: Router;
 
@@ -90,6 +90,14 @@ export default class RoomRouter {
             const params: PollVoteRequest = req.body;
             const success = this.roomService.votePoll(p.roomId, p.pollId, p.userInfo, { comment: params.comment, value: params.value }); // TODO check for foreign object?
             res.json(<VotePollResponse>{
+                success: success
+            });
+        }));
+
+        this.router.post('/:roomId/poll/:pollId/cancelVote', (req, res) => this.handler(req, res, p => {
+            const params: CancelVoteRequest = req.body;
+            const success = this.roomService.cancelVote(p.roomId, p.pollId, p.userInfo, params.voteId);
+            res.json(<CancelVoteResponse>{
                 success: success
             });
         }));

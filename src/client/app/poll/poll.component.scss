@@ -2,6 +2,15 @@
     animation: voteGlow 1s infinite normal;
 }
 
+.editIcon {
+    height: 1em;
+    margin-left: 0.5em;
+}
+
+.editIcon:hover {
+    cursor: pointer;
+}
+
 $glowSize: 5px;
 @keyframes voteGlow {
     from {

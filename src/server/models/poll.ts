@@ -4,6 +4,6 @@ import Vote from '../../shared/model/vote';
 export default interface Poll {
     id: string,
     question: string;
-    votes: { user: UserInfo, vote: Vote }[],
-    isActive: boolean
+    votes: { id: string, user: UserInfo, vote: Vote; }[],
+    isActive: boolean;
 }

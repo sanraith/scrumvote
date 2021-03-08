@@ -17,7 +17,7 @@ export interface CreateRoomResponse extends ResponseBase {
 }
 
 export interface RoomInfoResponse extends ResponseBase {
-    room?: PublicRoomInfo
+    room?: PublicRoomInfo;
 }
 
 export interface CreatePollRequest {
@@ -33,7 +33,14 @@ export interface PollVoteRequest {
     value: number;
     comment: string;
 }
+
+export interface CancelVoteRequest {
+    voteId: string;
+}
+
 export interface PollVoteResponse extends ResponseBase { }
+
+export interface CancelVoteResponse extends ResponseBase { }
 
 export interface ClosePollResponse extends ResponseBase { }
 

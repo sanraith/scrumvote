@@ -73,7 +73,12 @@ export class RoomComponent implements OnInit, OnDestroy {
         target.id = source.id;
         target.question = source.question;
         target.isActive = source.isActive;
-        target.votes = source.votes.map(x => ({ name: x.user.name, vote: x.vote }));
+        target.votes = source.votes.map(x => ({
+            id: x.id,
+            name: x.user.name,
+            userId: x.user.id,
+            vote: x.vote
+        }));
         target.isAlreadyVoted = source.votes.find(x => x.user.id === this.user.id) !== undefined;
     }
 

@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CLOSE_POLL_API, CREATE_POLL_API, DELETE_POLL_API, POLL_ID_PARAM, ROOM_ID_PARAM, ROOM_INFO_API, VOTE_POLL_API } from 'src/shared/paths';
-import { CreatePollRequest, CreatePollResponse, DeletePollRequest, DeletePollResponse, EmptyRequest, PollVoteRequest as VotePollRequest, PollVoteResponse as VotePollResponse, ResponseBase, RoomInfoResponse } from 'src/shared/roomResponses';
+import { CANCEL_VOTE_API, CLOSE_POLL_API, CREATE_POLL_API, DELETE_POLL_API, POLL_ID_PARAM, ROOM_ID_PARAM, ROOM_INFO_API, VOTE_POLL_API } from 'src/shared/paths';
+import { CancelVoteRequest, CancelVoteResponse, CreatePollRequest, CreatePollResponse, DeletePollRequest, DeletePollResponse, EmptyRequest, PollVoteRequest as VotePollRequest, PollVoteResponse as VotePollResponse, ResponseBase, RoomInfoResponse } from 'src/shared/roomResponses';
 
 @Injectable({
     providedIn: 'root'
@@ -34,6 +34,14 @@ export class RoomClientService {
             <VotePollRequest>{
                 comment: comment,
                 value: 0
+            });
+    }
+
+    cancelVoteAsync(pollId: string, voteId: string): Observable<CancelVoteResponse> {
+        return this.httpClient.post<VotePollResponse>(
+            CANCEL_VOTE_API.replace(ROOM_ID_PARAM, this.roomId).replace(POLL_ID_PARAM, pollId),
+            <CancelVoteRequest>{
+                voteId: voteId
             });
     }
 

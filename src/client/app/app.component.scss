@@ -33,3 +33,21 @@
     border: none;
     color: #aecfe5;
 }
+
+footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: white;
+    padding-left: 1em;
+}
+
+footer a {
+    color: #7f8c8d;
+}
+
+footer > div {
+    margin-right: 0.5em;
+    display: inline-block;
+}

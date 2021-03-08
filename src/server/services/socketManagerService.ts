@@ -32,7 +32,7 @@ export default class SocketManagerService {
         io.on(SocketEvents.connection, (socket) => {
             const userInfo = this.getUserFromSocketCookies(socket.handshake.headers.cookie);
             if (userInfo === undefined) {
-                debug(`Disconnected client, no user data: ${socket.client.id}`)
+                debug(`Disconnected client, no user data: ${socket.client.id}`);
                 socket.disconnect();
                 return;
             }
@@ -47,7 +47,7 @@ export default class SocketManagerService {
             const errorHandler: ErrorHandler = action => this.handleUserSocketError(userSocket, action);
 
             socket.on(SocketEvents.disconnect, () => {
-                errorHandler(() => { this.handleDisconnect(userInfo, socket, userSocket); })
+                errorHandler(() => { this.handleDisconnect(userInfo, socket, userSocket); });
             });
 
             socket.on(ClientActions.joinRoom, (data: JoinRoomData, callback?: (resp: EmitResponse) => void) => {
@@ -97,11 +97,12 @@ export default class SocketManagerService {
             id: poll.id,
             question: poll.question,
             votes: poll.votes.map(v => ({
+                id: v.id,
                 user: v.user.publicInfo,
                 vote: (!poll.isActive /*|| v.user === targetUser*/) ? v.vote : null // uncomment to show own vote while the poll is open
             })),
             isActive: poll.isActive
-        }
+        };
     }
 
     private handleDisconnect(userInfo: UserInfo, socket: SocketIo.Socket, userSocket: UserSocketService) {

@@ -18,6 +18,26 @@ export class PollComponent implements OnInit {
     voteComment: string;
     get userName(): string { return this.userService.userData.name; }
 
+    isAverageVisible: boolean = false;
+    get average(): string {
+        if (this.poll.isActive) { return 'Poll is still ongoing!'; }
+
+        const numbers = this.poll.votes
+            .map(x => this.parseVoteAsNumber(x.vote.comment));
+
+        const invalidVotes = numbers
+            .map((x, i) => ({ isValid: !isNaN(x), vote: this.poll.votes[i].vote.comment }))
+            .filter(x => !x.isValid)
+            .map(x => x.vote);
+
+        if (invalidVotes.length > 0) {
+            return `Could not parse these votes as numbers: ${invalidVotes.join(', ')}`;
+        }
+
+        const average = numbers.reduce((a, x) => a + x, 0) / numbers.length;
+        return `Average(${numbers.join(', ')}) = ${average}`;
+    }
+
     constructor(
         public uiHelper: UiHelperService,
         public userService: UserService,
@@ -58,5 +78,23 @@ export class PollComponent implements OnInit {
                 this.isBusy = false;
             });
         }
+    }
+
+    showHideAverage(): void {
+        this.isAverageVisible = !this.isAverageVisible;
+    }
+
+    private parseVoteAsNumber(vote: string): number {
+        let result = new Number(vote).valueOf();
+        if (isNaN(result)) {
+            vote = vote.replace(/\,/g, '.').replace(/\D/g, '');
+            if (vote === '') {
+                result = NaN;
+            } else {
+                result = new Number(vote).valueOf();
+            }
+        }
+
+        return result;
     }
 }

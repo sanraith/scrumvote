@@ -7,8 +7,19 @@
     margin-left: 0.5em;
 }
 
-.editIcon:hover {
+.editIcon:hover,
+.calculatorIcon:hover {
     cursor: pointer;
+}
+
+.calculatorIcon {
+    height: 1.5em;
+}
+
+.vmiddle {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
 $glowSize: 5px;

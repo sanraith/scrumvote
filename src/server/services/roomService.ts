@@ -142,5 +142,5 @@ export default class RoomService {
     _pollIdGenerator: { generate(): string; } = shortid;
     _roomIdGenerator: { generate(): string; } = shortid;
     _voteIdGenerator: { generate(): string; } = shortid;
-    private _rooms: { [id: string]: Room; } = {};
+    _rooms: { [id: string]: Room; } = {};
 }

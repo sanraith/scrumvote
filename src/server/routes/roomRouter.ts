@@ -8,6 +8,7 @@ import UserService from '../services/userService';
 import UserInfo from '../models/userInfo';
 const debug = Debug('vote-scrum:routes:roomRouter');
 const errorDebug = Debug('vote-scrum:routes:roomRouter:ERROR');
+const DEBUG_SECRET = process.env.DEBUG_SECRET;
 
 interface ParsedRequestParams {
     userInfo: UserInfo,
@@ -38,6 +39,15 @@ export default class RoomRouter {
     }
 
     private init() {
+        this.router.get("/debug/:secret", (req, res) => this.handler(req, res, p => {
+            if (req.params['secret'] !== DEBUG_SECRET) {
+                res.send('NONONO');
+                return;
+            }
+
+            res.json(this.roomService._rooms);
+        }));
+
         this.router.post('/create', (req, res) => this.handler(req, res, p => {
             const name = req.body?.name ?? `${p.userInfo.name}'s room`;
             const room = this.roomService.createRoom(p.userInfo, name);

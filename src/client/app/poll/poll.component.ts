@@ -85,16 +85,12 @@ export class PollComponent implements OnInit {
     }
 
     private parseVoteAsNumber(vote: string): number {
-        let result = new Number(vote).valueOf();
-        if (isNaN(result)) {
-            vote = vote.replace(/\,/g, '.').replace(/\D/g, '');
-            if (vote === '') {
-                result = NaN;
-            } else {
-                result = new Number(vote).valueOf();
-            }
-        }
+        // Matches the last number (e.g. 15 1,5 1.5 .5) in a line.
+        const regex = /(?:\d+(?:[\.\,]?\d+)?|(?<=^|\s)\.\d+)(?!.*\d)/g;
+        const [numberStr] = regex.exec(vote) ?? [];
+        if (!numberStr) { return NaN; }
 
-        return result;
+        const number = new Number(numberStr.replace(/\,/g, '.')).valueOf();
+        return number;
     }
 }

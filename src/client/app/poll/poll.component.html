@@ -1,9 +1,20 @@
 <h3>
     {{poll.question}}
     <span style="margin-left: 0.5em;font-size: 80%;">
-        <button *ngIf="isOwner && poll.isActive" class="pure-button pure-button-primary"
-            [disabled]="!poll.isActive || isBusy" (click)="closePoll()">✔</button>
-        <button *ngIf="isOwner" class="pure-button" [disabled]="isBusy" (click)="deletePoll()">✖</button>
+        <button *ngIf="isOwner && poll.isActive" class="pure-button pure-button-primary tooltip"
+            [disabled]="!poll.isActive || isBusy" (click)="closePoll()">
+            ✔
+            <span class="tooltiptext">Close poll</span>
+        </button>
+        <button *ngIf="isOwner && !poll.isActive" class="pure-button tooltip" [disabled]="poll.isActive || isBusy"
+            (click)="reopenPoll()">
+            ↺
+            <span class="tooltiptext">Reopen poll</span>
+        </button>
+        <button *ngIf="isOwner" class="pure-button tooltip" [disabled]="isBusy" (click)="deletePoll()">
+            ✖
+            <span class="tooltiptext">Delete poll</span>
+        </button>
     </span>
 </h3>
 
@@ -11,7 +22,7 @@
     style="min-width: 300px;">
     <thead>
         <tr>
-            <th style="width: 50%;">Name</th>
+            <th style="min-width: 150px;">Name</th>
             <th>Vote</th>
         </tr>
     </thead>
@@ -35,13 +46,24 @@
         <td *ngIf="vote.vote">{{vote.vote.comment}}</td>
         <td *ngIf="!vote.vote">
             💡
-            <img *ngIf="vote.userId === userService.userData.id" (click)="cancelVote(vote.id)" src="assets/edit.png"
-                class="editIcon" />
+            <div class="tooltip">
+                <img *ngIf="vote.userId === userService.userData.id" (click)="cancelVote(vote.id)" src="assets/edit.png"
+                    class="editIcon" />
+                <span class="tooltiptext">Edit vote</span>
+            </div>
         </td>
     </tr>
 </table>
 
-<div *ngIf="!poll.isActive && isOwner" style="margin-top: 0.5em; height: 2em; position: relative;">
-    <img class="calculatorIcon vmiddle" src="assets/calculator.svg" (click)="showHideAverage()" />
-    <div *ngIf="isAverageVisible" class="vmiddle" style="display: inline-block; margin-left: 2em;">{{average}}</div>
-</div>
+<ng-container *ngIf="this.average as average">
+    <div *ngIf="!poll.isActive && (isOwner || average.isValid)"
+        style="margin-top: 0.5em; height: 2em; position: relative;">
+        <div class="tooltip">
+            <img class="calculatorIcon vmiddle tooltip" src="assets/calculator.svg" (click)="showHideAverage()">
+            <span class="tooltiptext">{{isAverageVisible ? "Hide" : "Show"}} average</span>
+        </div>
+        <div *ngIf="isAverageVisible" class="vmiddle" style="display: inline-block; margin-left: 2em;">
+            {{average.display}}
+        </div>
+    </div>
+</ng-container>

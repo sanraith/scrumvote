@@ -1,10 +1,10 @@
 import Debug from 'debug';
 import shortid from 'shortid';
 import { Inject, OnlyInstantiableByContainer, Singleton } from 'typescript-ioc';
+import Vote from '../../shared/model/vote';
 import Poll from '../models/poll';
 import Room from '../models/room';
 import UserInfo from '../models/userInfo';
-import Vote from '../../shared/model/vote';
 import SocketManagerService from './socketManagerService';
 const debug = Debug("vote-scrum:services:roomManager");
 
@@ -115,16 +115,11 @@ export default class RoomService {
     }
 
     closePoll(roomId: string, pollId: string, userInfo: UserInfo): boolean {
-        const room = this.getRoom(roomId);
-        if (!room || userInfo !== room.owner) { return false; }
+        return this.closeOrReopenPoll(roomId, pollId, userInfo, 'close');
+    }
 
-        const poll = room.polls.get(pollId);
-        if (poll && poll.isActive) {
-            poll.isActive = false;
-            this.socketManager.emitPollChanged(room, poll);
-            return true;
-        }
-        return false;
+    reopenPoll(roomId: string, pollId: string, userInfo: UserInfo): boolean {
+        return this.closeOrReopenPoll(roomId, pollId, userInfo, 'reopen');
     }
 
     deletePoll(roomId: string, pollId: string, userInfo: UserInfo): boolean {
@@ -137,6 +132,20 @@ export default class RoomService {
         }
 
         return isDeleted;
+    }
+
+    private closeOrReopenPoll(roomId: string, pollId: string, userInfo: UserInfo, type: 'close' | 'reopen') {
+        const room = this.getRoom(roomId);
+        if (!room || userInfo !== room.owner) { return false; }
+
+        const poll = room.polls.get(pollId);
+        const shouldClose = type === 'close';
+        if (poll && poll.isActive === shouldClose) {
+            poll.isActive = !shouldClose;
+            this.socketManager.emitPollChanged(room, poll);
+            return true;
+        }
+        return false;
     }
 
     _pollIdGenerator: { generate(): string; } = shortid;

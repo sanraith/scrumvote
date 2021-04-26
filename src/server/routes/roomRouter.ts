@@ -1,11 +1,11 @@
-import express, { Router } from 'express';
 import Debug from 'debug';
-import { CreateRoomResponse, CreatePollRequest, PollVoteRequest, CreatePollResponse, PollVoteResponse as VotePollResponse, DeletePollRequest, DeletePollResponse, RoomInfoResponse, ClosePollResponse, CancelVoteResponse, CancelVoteRequest } from '../../shared/roomResponses';
-import routerErrorHandler, { ErrorHandler } from './routerErrorHandler';
+import express, { Router } from 'express';
 import { Inject } from 'typescript-ioc';
+import { CancelVoteRequest, CancelVoteResponse, ClosePollResponse, CreatePollRequest, CreatePollResponse, CreateRoomResponse, DeletePollResponse, PollVoteRequest, PollVoteResponse as VotePollResponse, ReopenPollResponse, RoomInfoResponse } from '../../shared/roomResponses';
+import UserInfo from '../models/userInfo';
 import RoomService from '../services/roomService';
 import UserService from '../services/userService';
-import UserInfo from '../models/userInfo';
+import routerErrorHandler, { ErrorHandler } from './routerErrorHandler';
 const debug = Debug('vote-scrum:routes:roomRouter');
 const errorDebug = Debug('vote-scrum:routes:roomRouter:ERROR');
 const DEBUG_SECRET = process.env.DEBUG_SECRET;
@@ -115,6 +115,13 @@ export default class RoomRouter {
         this.router.post('/:roomId/poll/:pollId/close', (req, res) => this.handler(req, res, p => {
             const success = this.roomService.closePoll(p.roomId, p.pollId, p.userInfo);
             res.json(<ClosePollResponse>{
+                success: success
+            });
+        }));
+
+        this.router.post('/:roomId/poll/:pollId/reopen', (req, res) => this.handler(req, res, p => {
+            const success = this.roomService.reopenPoll(p.roomId, p.pollId, p.userInfo);
+            res.json(<ReopenPollResponse>{
                 success: success
             });
         }));

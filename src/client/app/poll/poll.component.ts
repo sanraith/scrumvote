@@ -18,9 +18,13 @@ export class PollComponent implements OnInit {
     voteComment: string;
     get userName(): string { return this.userService.userData.name; }
 
-    isAverageVisible: boolean = false;
-    get average(): string {
-        if (this.poll.isActive) { return 'Poll is still ongoing!'; }
+    _isAverageVisible?: boolean = null;
+    get isAverageVisible(): boolean { return this._isAverageVisible ?? this.average.isValid; }
+    set isAverageVisible(value: boolean) { this._isAverageVisible = value; };
+
+    get average(): { display: string, isValid: boolean; } {
+        if (this.poll.isActive) { return { display: 'Poll is still ongoing!', isValid: false }; }
+        if (this.poll.votes.length === 0) { return { display: 'No votes registered!', isValid: false }; }
 
         const numbers = this.poll.votes
             .map(x => this.parseVoteAsNumber(x.vote.comment));
@@ -31,11 +35,14 @@ export class PollComponent implements OnInit {
             .map(x => x.vote);
 
         if (invalidVotes.length > 0) {
-            return `Could not parse these votes as numbers: ${invalidVotes.join(', ')}`;
+            return {
+                display: `Could not parse these votes as numbers: ${invalidVotes.join(', ')}`,
+                isValid: false
+            };
         }
 
         const average = numbers.reduce((a, x) => a + x, 0) / numbers.length;
-        return `Average(${numbers.join(', ')}) = ${average}`;
+        return { display: `Average(${numbers.join(', ')}) = ${average}`, isValid: true };
     }
 
     constructor(
@@ -66,6 +73,13 @@ export class PollComponent implements OnInit {
     closePoll(): void {
         this.isBusy = true;
         this.roomClient.closePollAsync(this.poll.id).subscribe(resp => {
+            this.isBusy = false;
+        });
+    }
+
+    reopenPoll(): void {
+        this.isBusy = true;
+        this.roomClient.reopenPollAsync(this.poll.id).subscribe(resp => {
             this.isBusy = false;
         });
     }

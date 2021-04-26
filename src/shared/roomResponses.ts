@@ -44,6 +44,8 @@ export interface CancelVoteResponse extends ResponseBase { }
 
 export interface ClosePollResponse extends ResponseBase { }
 
+export interface ReopenPollResponse extends ResponseBase { }
+
 export interface DeletePollRequest extends EmptyRequest { }
 
 export interface DeletePollResponse extends ResponseBase { }

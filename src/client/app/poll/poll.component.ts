@@ -22,27 +22,32 @@ export class PollComponent implements OnInit {
     get isAverageVisible(): boolean { return this._isAverageVisible ?? this.average.isValid; }
     set isAverageVisible(value: boolean) { this._isAverageVisible = value; };
 
-    get average(): { display: string, isValid: boolean; } {
-        if (this.poll.isActive) { return { display: 'Poll is still ongoing!', isValid: false }; }
-        if (this.poll.votes.length === 0) { return { display: 'No votes registered!', isValid: false }; }
+    get average(): { display?: string, error?: string, isValid: boolean; } {
+        if (this.poll.isActive) { return { error: 'Poll is still ongoing!', isValid: false }; }
+        if (this.poll.votes.length === 0) { return { error: 'No votes registered!', isValid: false }; }
 
+        const result = { isValid: true, error: undefined, display: undefined };
         const numbers = this.poll.votes
             .map(x => this.parseVoteAsNumber(x.vote.comment));
-
         const invalidVotes = numbers
             .map((x, i) => ({ isValid: !isNaN(x), vote: this.poll.votes[i].vote.comment }))
             .filter(x => !x.isValid)
             .map(x => x.vote);
 
         if (invalidVotes.length > 0) {
-            return {
-                display: `Could not parse these votes as numbers: ${invalidVotes.join(', ')}`,
-                isValid: false
-            };
+            result.isValid = false;
+            result.error = `Could not parse these votes as numbers: ${invalidVotes.join(', ')}`;
         }
 
-        const average = numbers.reduce((a, x) => a + x, 0) / numbers.length;
-        return { display: `Average(${numbers.join(', ')}) = ${average}`, isValid: true };
+        const validNumbers = numbers.filter(x => !isNaN(x));
+        if (validNumbers.length > 0) {
+            const average = validNumbers.reduce((a, x) => a + x, 0) / validNumbers.length;
+            result.display = `Average(${validNumbers.join(', ')}) = ${average}`;
+        } else {
+            result.display = 'Cannot calculate average.';
+        }
+
+        return result;
     }
 
     constructor(

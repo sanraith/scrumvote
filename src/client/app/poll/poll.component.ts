@@ -34,7 +34,7 @@ export class PollComponent implements OnInit {
             numbers = this.poll.votes
                 .map(x => this.parseVoteAsNumber(x.vote.comment));
         } catch (error) {
-            console.warn(`Error during parsing numbers, probably Safari being incompatible with RegExps lookbehind:`);
+            console.warn(`Error parsing numbers.`);
             console.warn(error);
             hadParsingError = true;
         }
@@ -59,9 +59,7 @@ export class PollComponent implements OnInit {
 
         if (hadParsingError) {
             result.isValid = false;
-            result.error =
-                "You may be using an incompatible browser. " +
-                "Check here for availability: https://caniuse.com/js-regexp-lookbehind";
+            result.error = "Could not parse numbers, you may be using an incompatible browser.";
         }
 
         return result;
@@ -122,8 +120,8 @@ export class PollComponent implements OnInit {
 
     private parseVoteAsNumber(vote: string): number {
         // Matches the last number (e.g. 15 1,5 1.5 .5) in a line.
-        // Regexp must be built from string to ensure Safari compatibility.
-        const regex = new RegExp('(?:\\d+(?:[\\.\\,]?\\d+)?|(?<=^|\\s)\\.\\d+)(?!.*\\d)', 'g');
+        // Not using lookbehind for Safari compatibility.
+        const regex = new RegExp('(?:\\d+(?:[\\.\\,]?\\d+)?|(?:^|[^\\S\\r\\n])\\.\\d+)(?!.*\\d)', 'g');
         const [numberStr] = regex.exec(vote) ?? [];
         if (!numberStr) { return NaN; }
 

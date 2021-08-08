@@ -1,4 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import PublicPollInfo from 'src/shared/model/publicPollInfo';
 import PublicRoomInfo from 'src/shared/model/publicRoomInfo';
@@ -40,15 +41,20 @@ export class RoomComponent implements OnInit, OnDestroy {
     pollModels: PollViewModel[] = [];
     users: PublicUserInfo[] = [];
 
+    private previousTitles: string[] = [];
+
     constructor(
         public uiHelper: UiHelperService,
         private router: Router,
         private route: ActivatedRoute,
         private socketClient: SocketClientService,
         private userService: UserService,
-        private roomClient: RoomClientService) { }
+        private roomClient: RoomClientService,
+        private titleService: Title
+    ) { }
 
     ngOnInit(): void {
+        this.previousTitles.push(this.titleService.getTitle());
         this.user = this.userService.userData;
         this.roomId = this.route.snapshot.paramMap.get('id');
         this.roomAddress = window.location.href;
@@ -60,6 +66,7 @@ export class RoomComponent implements OnInit, OnDestroy {
             this.roomClient.getRoomInfoAsync().subscribe(resp => {
                 if (resp.success) {
                     this.roomInfo = resp.room;
+                    this.titleService.setTitle(`scrum-vote | ${this.roomInfo.name}`);
                 }
             });
             this.socketClient.joinRoomAsync(this.roomId).subscribe(joinSuccess => {
@@ -113,6 +120,7 @@ export class RoomComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         this.socketClient.disconnect();
+        this.titleService.setTitle(this.previousTitles.pop());
     }
 
     copyRoomAddressToClipboard(input: HTMLInputElement, button: HTMLButtonElement) {

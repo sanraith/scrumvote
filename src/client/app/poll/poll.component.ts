@@ -27,8 +27,18 @@ export class PollComponent implements OnInit {
         if (this.poll.votes.length === 0) { return { error: 'No votes registered!', isValid: false }; }
 
         const result = { isValid: true, error: undefined, display: undefined };
-        const numbers = this.poll.votes
-            .map(x => this.parseVoteAsNumber(x.vote.comment));
+        let numbers: number[] = [];
+        let hadParsingError = false;
+
+        try {
+            numbers = this.poll.votes
+                .map(x => this.parseVoteAsNumber(x.vote.comment));
+        } catch (error) {
+            console.warn(`Error during parsing numbers, probably Safari being incompatible with RegExps lookbehind:`);
+            console.warn(error);
+            hadParsingError = true;
+        }
+
         const invalidVotes = numbers
             .map((x, i) => ({ isValid: !isNaN(x), vote: this.poll.votes[i].vote.comment }))
             .filter(x => !x.isValid)
@@ -45,6 +55,13 @@ export class PollComponent implements OnInit {
             result.display = `Average(${validNumbers.join(', ')}) = ${average}`;
         } else {
             result.display = 'Cannot calculate average.';
+        }
+
+        if (hadParsingError) {
+            result.isValid = false;
+            result.error =
+                "You may be using an incompatible browser. " +
+                "Check here for availability: https://caniuse.com/js-regexp-lookbehind";
         }
 
         return result;
@@ -105,7 +122,8 @@ export class PollComponent implements OnInit {
 
     private parseVoteAsNumber(vote: string): number {
         // Matches the last number (e.g. 15 1,5 1.5 .5) in a line.
-        const regex = /(?:\d+(?:[\.\,]?\d+)?|(?<=^|\s)\.\d+)(?!.*\d)/g;
+        // Regexp must be built from string to ensure Safari compatibility.
+        const regex = new RegExp('(?:\\d+(?:[\\.\\,]?\\d+)?|(?<=^|\\s)\\.\\d+)(?!.*\\d)', 'g');
         const [numberStr] = regex.exec(vote) ?? [];
         if (!numberStr) { return NaN; }
 

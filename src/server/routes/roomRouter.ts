@@ -1,6 +1,7 @@
 import Debug from 'debug';
 import express, { Router } from 'express';
 import { Inject } from 'typescript-ioc';
+import * as util from 'util';
 import { CancelVoteRequest, CancelVoteResponse, ClosePollResponse, CreatePollRequest, CreatePollResponse, CreateRoomResponse, DeletePollResponse, PollVoteRequest, PollVoteResponse as VotePollResponse, ReopenPollResponse, RoomInfoResponse } from '../../shared/roomResponses';
 import UserInfo from '../models/userInfo';
 import RoomService from '../services/roomService';
@@ -45,7 +46,7 @@ export default class RoomRouter {
                 return;
             }
 
-            res.json(this.roomService._rooms);
+            res.send(util.inspect(this.roomService._rooms, false, 6));
         }));
 
         this.router.post('/create', (req, res) => this.handler(req, res, p => {
